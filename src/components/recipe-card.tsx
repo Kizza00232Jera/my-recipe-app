@@ -2,7 +2,7 @@ import Image from "next/image";
 import { Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
-import type { Recipe, DishType } from "@/lib/mock-data";
+import type { Recipe, DishType } from "@/lib/db/schema";
 
 const DISH_TYPE_COLORS: Record<DishType, string> = {
   main: "bg-blue-100 text-blue-700 border-blue-200",

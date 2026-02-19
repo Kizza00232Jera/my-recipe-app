@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FolderInput } from "lucide-react";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
-import type { Recipe, Folder } from "@/lib/mock-data";
+import type { Recipe, Folder } from "@/lib/db/schema";
 
 type RecipeGridProps = {
   recipes: Recipe[];

@@ -4,7 +4,7 @@ import { useState } from "react";
 import { FolderOpen, Folder, Plus, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
-import type { Folder as FolderType, Recipe } from "@/lib/mock-data";
+import type { Folder as FolderType, Recipe } from "@/lib/db/schema";
 
 type FolderSidebarProps = {
   folders: FolderType[];
