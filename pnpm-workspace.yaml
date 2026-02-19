@@ -1,6 +1,13 @@
 packages:
   - "."
 
+# Packages allowed to run build/install scripts
+onlyBuiltDependencies:
+  - "@clerk/shared"
+  - bufferutil
+  - esbuild
+
+# Packages whose build scripts are intentionally skipped
 ignoredBuiltDependencies:
   - sharp
   - unrs-resolver

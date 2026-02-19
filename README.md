@@ -45,7 +45,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [x] 4. Set up database (Neon Postgres + Drizzle ORM)
 - [x] 5. Attach database to UI (replace mock data with real queries)
 - [x] 6. Add authentication (Clerk — GitHub + Google + Apple)
-- [ ] 7. Add recipe upload (Uploadthing + server action to save)
+- [x] 7. Add recipe upload (Uploadthing + server action to save)
 - [ ] 8. Taint server-only modules (server-only package)
 - [ ] 9. Use next/image component (replace img tags)
 - [ ] 10. Error management (Sentry)
