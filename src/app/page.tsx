@@ -1,8 +1,18 @@
+import { currentUser } from "@clerk/nextjs/server";
 import { HomeClient } from "@/components/home-client";
-import { getFolders, getRecipes } from "@/lib/db/queries";
+import { getFolders, getOrCreateUser, getRecipes } from "@/lib/db/queries";
 
 export default async function Home() {
-  const [recipes, folders] = await Promise.all([getRecipes(), getFolders()]);
+  const clerkUser = await currentUser();
+  const dbUser = await getOrCreateUser(
+    clerkUser!.id,
+    clerkUser!.emailAddresses[0]?.emailAddress ?? ""
+  );
+
+  const [recipes, folders] = await Promise.all([
+    getRecipes(dbUser.id),
+    getFolders(dbUser.id),
+  ]);
 
   return <HomeClient recipes={recipes} folders={folders} />;
 }

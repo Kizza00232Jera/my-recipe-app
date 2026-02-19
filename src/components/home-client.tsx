@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { UserButton } from "@clerk/nextjs";
 import { ChefHat, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RecipeGrid } from "@/components/recipe-grid";
@@ -22,11 +23,12 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-6">
           <ChefHat size={22} className="text-zinc-900" />
           <span className="font-semibold text-zinc-900">My Recipe App</span>
-          <div className="ml-auto">
+          <div className="ml-auto flex items-center gap-3">
             <Button size="sm" className="gap-1.5">
               <Plus size={15} />
               Add Recipe
             </Button>
+            <UserButton />
           </div>
         </div>
       </header>

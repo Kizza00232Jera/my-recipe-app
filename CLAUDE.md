@@ -79,7 +79,7 @@ src/
 │   └── actions/
 │       ├── recipes.ts          # create, delete recipe server actions
 │       └── folders.ts          # create, delete folder server actions
-└── middleware.ts               # Clerk auth middleware
+└── proxy.ts                    # Clerk auth proxy (Next.js 16 convention)
 ```
 
 ---
