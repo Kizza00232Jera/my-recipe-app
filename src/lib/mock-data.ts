@@ -91,7 +91,8 @@ export const MOCK_RECIPES: Recipe[] = [
       { amount: "4", unit: "", name: "eggs" },
       { amount: "60", unit: "g", name: "sugar" },
     ],
-    instructions: "Melt chocolate and butter. Whisk eggs and sugar. Combine and bake at 220°C for 12 min.",
+    instructions:
+      "Melt chocolate and butter. Whisk eggs and sugar. Combine and bake at 220°C for 12 min.",
   },
   {
     id: "r4",
@@ -110,7 +111,8 @@ export const MOCK_RECIPES: Recipe[] = [
       { amount: "150", unit: "g", name: "fresh mozzarella" },
       { amount: "10", unit: "", name: "basil leaves" },
     ],
-    instructions: "Roll dough. Spread sauce. Add mozzarella. Bake at 250°C for 10-12 min. Top with basil.",
+    instructions:
+      "Roll dough. Spread sauce. Add mozzarella. Bake at 250°C for 10-12 min. Top with basil.",
   },
   {
     id: "r5",
@@ -129,7 +131,8 @@ export const MOCK_RECIPES: Recipe[] = [
       { amount: "2", unit: "tbsp", name: "tikka masala paste" },
       { amount: "1", unit: "", name: "onion" },
     ],
-    instructions: "Marinate chicken. Brown onions. Add paste and chicken. Simmer with cream for 20 min.",
+    instructions:
+      "Marinate chicken. Brown onions. Add paste and chicken. Simmer with cream for 20 min.",
   },
   {
     id: "r6",
@@ -148,6 +151,7 @@ export const MOCK_RECIPES: Recipe[] = [
       { amount: "200", unit: "g", name: "gruyère cheese" },
       { amount: "4", unit: "", name: "slices baguette" },
     ],
-    instructions: "Caramelise onions 45 min. Add broth. Simmer 15 min. Top with bread and cheese, broil.",
+    instructions:
+      "Caramelise onions 45 min. Add broth. Simmer 15 min. Top with bread and cheese, broil.",
   },
 ];

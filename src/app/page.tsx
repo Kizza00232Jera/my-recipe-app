@@ -34,11 +34,7 @@ export default function Home() {
           activeFolderId={activeFolderId}
           onSelectFolder={setActiveFolderId}
         />
-        <RecipeGrid
-          recipes={MOCK_RECIPES}
-          folders={MOCK_FOLDERS}
-          activeFolderId={activeFolderId}
-        />
+        <RecipeGrid recipes={MOCK_RECIPES} folders={MOCK_FOLDERS} activeFolderId={activeFolderId} />
       </div>
     </div>
   );

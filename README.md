@@ -35,14 +35,13 @@ The easiest way to deploy your Next.js app is to use the [Vercel Platform](https
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
 
-
 # My Recipe App
 
 ## Todo
 
 - [x] 1. Deploy to Vercel (connect repo, confirm CI works)
 - [x] 2. Scaffold basic UI with mock recipe data (grid layout)
-- [ ] 3. Tidy up build process (ESLint, Prettier, path aliases)
+- [x] 3. Tidy up build process (ESLint, Prettier, path aliases)
 - [ ] 4. Set up database (Vercel Postgres + Drizzle ORM)
 - [ ] 5. Attach database to UI (replace mock data with real queries)
 - [ ] 6. Add authentication (Clerk — GitHub + Google)

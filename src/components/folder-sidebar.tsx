@@ -53,7 +53,7 @@ export function FolderSidebar({
 
         {/* Folder divider */}
         {folders.length > 0 && (
-          <p className="px-3 pt-4 pb-1 text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <p className="px-3 pt-4 pb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
             Folders
           </p>
         )}
@@ -71,18 +71,9 @@ export function FolderSidebar({
                   : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
               )}
             >
-              {isActive ? (
-                <FolderOpen size={15} />
-              ) : (
-                <Folder size={15} />
-              )}
+              {isActive ? <FolderOpen size={15} /> : <Folder size={15} />}
               <span className="flex-1 truncate text-left">{folder.name}</span>
-              <span
-                className={cn(
-                  "text-xs",
-                  isActive ? "text-zinc-300" : "text-zinc-400"
-                )}
-              >
+              <span className={cn("text-xs", isActive ? "text-zinc-300" : "text-zinc-400")}>
                 {countInFolder(folder.id)}
               </span>
             </button>
@@ -104,7 +95,7 @@ export function FolderSidebar({
                 if (e.key === "Escape") setIsCreating(false);
               }}
               placeholder="Folder name…"
-              className="w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+              className="focus:ring-primary w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
             />
             <div className="flex gap-1.5">
               <Button size="sm" className="flex-1 text-xs" onClick={() => setIsCreating(false)}>
@@ -114,7 +105,10 @@ export function FolderSidebar({
                 size="sm"
                 variant="ghost"
                 className="text-xs"
-                onClick={() => { setIsCreating(false); setNewFolderName(""); }}
+                onClick={() => {
+                  setIsCreating(false);
+                  setNewFolderName("");
+                }}
               >
                 Cancel
               </Button>

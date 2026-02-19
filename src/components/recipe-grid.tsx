@@ -16,9 +16,7 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
   const [selected, setSelected] = useState<Set<string>>(new Set());
 
   const filtered =
-    activeFolderId === null
-      ? recipes
-      : recipes.filter((r) => r.folderId === activeFolderId);
+    activeFolderId === null ? recipes : recipes.filter((r) => r.folderId === activeFolderId);
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -34,15 +32,13 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
   }
 
   return (
-    <div className="flex-1 min-w-0">
+    <div className="min-w-0 flex-1">
       {/* Multi-select action bar */}
       {selected.size > 0 && (
         <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-          <span className="text-sm font-medium text-zinc-700">
-            {selected.size} selected
-          </span>
-          <div className="flex items-center gap-2 ml-auto">
-            <select className="text-sm border border-zinc-200 rounded-lg px-3 py-1.5 bg-white focus:outline-none focus:ring-2 focus:ring-primary">
+          <span className="text-sm font-medium text-zinc-700">{selected.size} selected</span>
+          <div className="ml-auto flex items-center gap-2">
+            <select className="focus:ring-primary rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:outline-none">
               <option value="">Move to folder…</option>
               {folders.map((f) => (
                 <option key={f.id} value={f.id}>
@@ -65,7 +61,7 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
       {filtered.length === 0 && (
         <div className="flex flex-col items-center justify-center py-24 text-zinc-400">
           <p className="text-lg font-medium">No recipes yet</p>
-          <p className="text-sm mt-1">Add your first recipe to get started</p>
+          <p className="mt-1 text-sm">Add your first recipe to get started</p>
         </div>
       )}
 

@@ -33,19 +33,19 @@ A personal recipe library web app. The user can upload photos of cooked meals, a
 
 ## Tech Stack
 
-| Concern | Tool | Notes |
-|---|---|---|
-| Framework | Next.js 14+ (App Router) | Use server components by default |
-| Styling | Tailwind CSS + shadcn/ui | Use shadcn components wherever possible |
-| Icons | Lucide React | Already included with shadcn |
-| Database | Vercel Postgres + Drizzle ORM | Use Drizzle for all queries, never raw SQL |
-| Auth | Clerk | GitHub + Google OAuth |
-| File Upload | Uploadthing | One hero image per recipe |
-| Error Monitoring | Sentry | Wrap server actions and API routes |
-| Analytics | PostHog | Client-side provider in layout |
-| Rate Limiting | Upstash Redis + @upstash/ratelimit | Protect upload and delete endpoints |
-| Deployment | Vercel | Auto-deploys on push to main |
-| Package Manager | pnpm | Always use pnpm, never npm or yarn |
+| Concern          | Tool                               | Notes                                      |
+| ---------------- | ---------------------------------- | ------------------------------------------ |
+| Framework        | Next.js 14+ (App Router)           | Use server components by default           |
+| Styling          | Tailwind CSS + shadcn/ui           | Use shadcn components wherever possible    |
+| Icons            | Lucide React                       | Already included with shadcn               |
+| Database         | Vercel Postgres + Drizzle ORM      | Use Drizzle for all queries, never raw SQL |
+| Auth             | Clerk                              | GitHub + Google OAuth                      |
+| File Upload      | Uploadthing                        | One hero image per recipe                  |
+| Error Monitoring | Sentry                             | Wrap server actions and API routes         |
+| Analytics        | PostHog                            | Client-side provider in layout             |
+| Rate Limiting    | Upstash Redis + @upstash/ratelimit | Protect upload and delete endpoints        |
+| Deployment       | Vercel                             | Auto-deploys on push to main               |
+| Package Manager  | pnpm                               | Always use pnpm, never npm or yarn         |
 
 ---
 
@@ -87,6 +87,7 @@ src/
 ## Data Model
 
 ### Recipe
+
 ```ts
 {
   id: string (cuid)
@@ -106,22 +107,24 @@ src/
 ```
 
 ### Folder
+
 ```ts
 {
-  id: string (cuid)
-  userId: string
-  name: string
-  createdAt: timestamp
+  id: string(cuid);
+  userId: string;
+  name: string;
+  createdAt: timestamp;
 }
 ```
 
 ### User
+
 ```ts
 {
-  id: string (cuid)
-  clerkId: string
-  email: string
-  createdAt: timestamp
+  id: string(cuid);
+  clerkId: string;
+  email: string;
+  createdAt: timestamp;
 }
 ```
 
@@ -130,6 +133,7 @@ src/
 ## Key Rules — Always Follow These
 
 ### General
+
 - Always use **pnpm** — never suggest npm or yarn commands
 - Always use the **App Router** — never use pages/ directory patterns
 - Default to **server components** — only add `"use client"` when strictly necessary (event handlers, hooks, browser APIs)
@@ -137,26 +141,31 @@ src/
 - Never put database imports in client components — use the `server-only` package to enforce this
 
 ### Components
+
 - Use **shadcn/ui** components before building custom ones
 - Use **Lucide React** for all icons
 - Recipe cards show: hero image, name, dish type badge, star rating, cook time
 - The recipe modal uses a **parallel + intercepting route** pattern (not a state-based modal)
 
 ### Server Actions
+
 - All mutations (create recipe, delete recipe, create folder, move recipe) must be **server actions** in `src/server/actions/`
 - Wrap upload and delete actions with **Upstash rate limiting**
 - Wrap server actions with **Sentry** error capturing
 
 ### Auth
+
 - All pages require authentication — use Clerk middleware to protect everything except `/` (public landing) if needed
 - Use `auth()` from `@clerk/nextjs/server` in server components
 - Use `useAuth()` or `useUser()` from `@clerk/nextjs` in client components only
 
 ### Images
+
 - Always use **next/image** — never a raw `<img>` tag
 - Images are served from Uploadthing CDN — add their domain to `next.config.ts` remotePatterns
 
 ### Error Handling
+
 - Sentry must be initialized in `sentry.client.config.ts`, `sentry.server.config.ts`, and `sentry.edge.config.ts`
 - Use `Sentry.captureException()` in catch blocks inside server actions
 
@@ -207,6 +216,7 @@ pnpm db:studio    # Open Drizzle Studio (database GUI)
 ```
 
 Add these scripts to `package.json`:
+
 ```json
 "db:push": "drizzle-kit push",
 "db:studio": "drizzle-kit studio"

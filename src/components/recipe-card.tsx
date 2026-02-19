@@ -22,9 +22,7 @@ function StarRating({ rating }: { rating: number }) {
         <Star
           key={i}
           size={12}
-          className={cn(
-            i < rating ? "fill-amber-400 text-amber-400" : "text-zinc-300"
-          )}
+          className={cn(i < rating ? "fill-amber-400 text-amber-400" : "text-zinc-300")}
         />
       ))}
     </div>
@@ -41,9 +39,9 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
   return (
     <div
       className={cn(
-        "group relative cursor-pointer rounded-xl overflow-hidden bg-white border transition-all duration-200",
-        "hover:shadow-md hover:-translate-y-0.5",
-        selected ? "ring-2 ring-primary border-primary" : "border-zinc-200"
+        "group relative cursor-pointer overflow-hidden rounded-xl border bg-white transition-all duration-200",
+        "hover:-translate-y-0.5 hover:shadow-md",
+        selected ? "ring-primary border-primary ring-2" : "border-zinc-200"
       )}
       onClick={() => onSelect?.(recipe.id)}
     >
@@ -51,7 +49,7 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
       {onSelect && (
         <div
           className={cn(
-            "absolute top-2 left-2 z-10 w-5 h-5 rounded-full border-2 bg-white transition-all",
+            "absolute top-2 left-2 z-10 h-5 w-5 rounded-full border-2 bg-white transition-all",
             selected
               ? "border-primary bg-primary"
               : "border-zinc-300 opacity-0 group-hover:opacity-100"
@@ -59,7 +57,7 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
         >
           {selected && (
             <svg
-              className="w-full h-full text-white p-0.5"
+              className="h-full w-full p-0.5 text-white"
               viewBox="0 0 24 24"
               fill="none"
               stroke="currentColor"
@@ -83,17 +81,14 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
       </div>
 
       {/* Card body */}
-      <div className="p-3 space-y-2">
-        <h3 className="font-semibold text-sm text-zinc-900 leading-tight line-clamp-2">
+      <div className="space-y-2 p-3">
+        <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
           {recipe.name}
         </h3>
 
         <div className="flex items-center justify-between gap-2">
           <Badge
-            className={cn(
-              "text-xs capitalize border",
-              DISH_TYPE_COLORS[recipe.dishType]
-            )}
+            className={cn("border text-xs capitalize", DISH_TYPE_COLORS[recipe.dishType])}
             variant="outline"
           >
             {recipe.dishType}
