@@ -41,7 +41,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 ## Todo
 
 - [x] 1. Deploy to Vercel (connect repo, confirm CI works)
-- [ ] 2. Scaffold basic UI with mock recipe data (grid layout)
+- [x] 2. Scaffold basic UI with mock recipe data (grid layout)
 - [ ] 3. Tidy up build process (ESLint, Prettier, path aliases)
 - [ ] 4. Set up database (Vercel Postgres + Drizzle ORM)
 - [ ] 5. Attach database to UI (replace mock data with real queries)
