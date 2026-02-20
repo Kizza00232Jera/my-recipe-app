@@ -9,14 +9,15 @@ import { createFolder } from "@/server/actions/folders";
 import type { Folder as FolderType, Recipe, DishType } from "@/lib/db/schema";
 
 const DISH_TYPE_LABELS: Record<DishType, string> = {
-  main: "Main Dish",
-  dessert: "Dessert",
-  pizza: "Pizza",
-  grill: "Grill",
-  soup: "Soup",
-  salad: "Salad",
+  lunch: "Lunch",
+  dinner: "Dinner",
   breakfast: "Breakfast",
-  other: "Other",
+  side: "Side Dish",
+  appetizer: "Appetizer",
+  snack: "Snack",
+  sauce: "Sauce",
+  drinks: "Drinks",
+  vegan: "Vegan",
 };
 
 type FolderSidebarProps = {

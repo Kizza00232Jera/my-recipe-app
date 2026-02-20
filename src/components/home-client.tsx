@@ -56,15 +56,12 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
 
       {/* Mobile filter bar */}
       <MobileFilterBar
-        folders={folders}
         recipes={recipes}
-        activeFolderId={activeFolderId}
-        onSelectFolder={setActiveFolderId}
         activeDishType={activeDishType}
         onSelectDishType={setActiveDishType}
       />
 
-      <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />
+      <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} folders={folders} />
 
       {/* Main layout */}
       <div className="mx-auto flex max-w-7xl gap-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 md:pb-8">

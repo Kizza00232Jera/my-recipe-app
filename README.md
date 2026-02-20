@@ -52,6 +52,6 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [x] 11. Recipe page routing (parallel + intercepting routes)
 - [x] 12. Polish upload button UI
 - [x] 13. Toaster notifications (shadcn/ui toast)
-- [ ] 14. Analytics (PostHog)
-- [ ] 15. Delete recipe (server action + confirm dialog)
-- [ ] 16. Rate limiting (Upstash Redis)
+- [x] 14. Analytics (PostHog)
+- [x] 15. Delete recipe (server action + confirm dialog)
+- [x] 16. Rate limiting (Upstash Redis)

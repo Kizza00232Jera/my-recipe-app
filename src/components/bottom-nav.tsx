@@ -1,7 +1,7 @@
 "use client";
 
 import { usePathname, useRouter } from "next/navigation";
-import { Home, Plus, Settings } from "lucide-react";
+import { Home, FolderOpen, Plus, List, Settings } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
@@ -15,17 +15,29 @@ export function BottomNav({ onAddRecipe }: BottomNavProps) {
 
   return (
     <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white">
-      <div className="flex items-center justify-around px-6 pb-safe">
+      <div className="flex items-center justify-around px-2 pb-safe">
         {/* Home */}
         <button
           onClick={() => router.push("/")}
           className={cn(
-            "flex flex-col items-center gap-1 px-4 py-3 text-xs font-medium transition-colors",
+            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors",
             pathname === "/" ? "text-zinc-900" : "text-zinc-400"
           )}
         >
           <Home size={22} />
           <span>Home</span>
+        </button>
+
+        {/* Folders */}
+        <button
+          onClick={() => router.push("/folders")}
+          className={cn(
+            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors",
+            pathname === "/folders" ? "text-zinc-900" : "text-zinc-400"
+          )}
+        >
+          <FolderOpen size={22} />
+          <span>Folders</span>
         </button>
 
         {/* Add Recipe — prominent center button */}
@@ -39,10 +51,19 @@ export function BottomNav({ onAddRecipe }: BottomNavProps) {
           </button>
         </div>
 
+        {/* List (coming soon) */}
+        <button
+          onClick={() => toast("List view coming soon")}
+          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium text-zinc-400 transition-colors"
+        >
+          <List size={22} />
+          <span>List</span>
+        </button>
+
         {/* Settings */}
         <button
           onClick={() => toast("Settings coming soon")}
-          className="flex flex-col items-center gap-1 px-4 py-3 text-xs font-medium text-zinc-400 transition-colors"
+          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium text-zinc-400 transition-colors"
         >
           <Settings size={22} />
           <span>Settings</span>

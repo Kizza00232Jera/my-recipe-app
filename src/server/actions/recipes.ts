@@ -21,6 +21,7 @@ type CreateRecipeInput = {
   ingredients: { amount: string; unit: string; name: string }[];
   instructions: string;
   rating: number;
+  folderIds?: string[];
 };
 
 export async function createRecipe(input: CreateRecipeInput) {
@@ -39,7 +40,7 @@ export async function createRecipe(input: CreateRecipeInput) {
     await db.insert(recipes).values({
       id: createId(),
       userId: dbUser.id,
-      folderIds: [],
+      folderIds: input.folderIds ?? [],
       ...input,
     });
 

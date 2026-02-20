@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import Image from "next/image";
-import { ImagePlus, Plus, Star, Trash2, X } from "lucide-react";
+import { Folder, ImagePlus, Plus, Star, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -15,27 +15,33 @@ import { UploadButton } from "@/lib/uploadthing-client";
 import { createRecipe } from "@/server/actions/recipes";
 import { cn } from "@/lib/utils";
 import { DISH_TYPES } from "@/lib/db/schema";
-import type { DishType } from "@/lib/db/schema";
+import type { DishType, Folder as FolderType } from "@/lib/db/schema";
 
 const DISH_TYPE_LABELS: Record<DishType, string> = {
-  main: "Main",
-  dessert: "Dessert",
-  pizza: "Pizza",
-  grill: "Grill",
-  soup: "Soup",
-  salad: "Salad",
+  lunch: "Lunch",
+  dinner: "Dinner",
   breakfast: "Breakfast",
-  other: "Other",
+  side: "Side Dish",
+  appetizer: "Appetizer",
+  snack: "Snack",
+  sauce: "Sauce",
+  drinks: "Drinks",
+  vegan: "Vegan",
 };
 
 type Ingredient = { amount: string; unit: string; name: string };
 
-type Props = { open: boolean; onOpenChange: (open: boolean) => void };
+type Props = {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+  folders: FolderType[];
+};
 
-export function RecipeUploadDialog({ open, onOpenChange }: Props) {
+export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
   const [imageUrl, setImageUrl] = useState("");
   const [name, setName] = useState("");
   const [dishTypes, setDishTypes] = useState<DishType[]>([]);
+  const [selectedFolderIds, setSelectedFolderIds] = useState<string[]>([]);
   const [tagsInput, setTagsInput] = useState("");
   const [prepTime, setPrepTime] = useState("");
   const [cookTime, setCookTime] = useState("");
@@ -50,6 +56,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
     setImageUrl("");
     setName("");
     setDishTypes([]);
+    setSelectedFolderIds([]);
     setTagsInput("");
     setPrepTime("");
     setCookTime("");
@@ -61,6 +68,12 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
   function toggleDishType(type: DishType) {
     setDishTypes((prev) =>
       prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
+  }
+
+  function toggleFolder(id: string) {
+    setSelectedFolderIds((prev) =>
+      prev.includes(id) ? prev.filter((f) => f !== id) : [...prev, id]
     );
   }
 
@@ -91,6 +104,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
         name,
         imageUrl,
         dishTypes,
+        folderIds: selectedFolderIds,
         tags: tagsInput
           .split(",")
           .map((t) => t.trim())
@@ -321,6 +335,37 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:outline-none"
             />
           </div>
+
+          {/* Save to folders (optional) */}
+          {folders.length > 0 && (
+            <div>
+              <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+                Save to folder{" "}
+                <span className="font-normal text-zinc-400">(optional)</span>
+              </label>
+              <div className="flex flex-wrap gap-2">
+                {folders.map((folder) => {
+                  const active = selectedFolderIds.includes(folder.id);
+                  return (
+                    <button
+                      key={folder.id}
+                      type="button"
+                      onClick={() => toggleFolder(folder.id)}
+                      className={cn(
+                        "inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                        active
+                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                      )}
+                    >
+                      <Folder size={11} />
+                      {folder.name}
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          )}
 
           {/* Submit */}
           <div className="flex justify-end gap-2 border-t border-zinc-100 pt-4">

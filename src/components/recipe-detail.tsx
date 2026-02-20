@@ -5,14 +5,15 @@ import { cn } from "@/lib/utils";
 import type { Recipe, DishType } from "@/lib/db/schema";
 
 const DISH_TYPE_COLORS: Record<DishType, string> = {
-  main: "bg-blue-100 text-blue-700 border-blue-200",
-  dessert: "bg-pink-100 text-pink-700 border-pink-200",
-  pizza: "bg-orange-100 text-orange-700 border-orange-200",
-  grill: "bg-red-100 text-red-700 border-red-200",
-  soup: "bg-amber-100 text-amber-700 border-amber-200",
-  salad: "bg-green-100 text-green-700 border-green-200",
+  lunch: "bg-emerald-100 text-emerald-700 border-emerald-200",
+  dinner: "bg-blue-100 text-blue-700 border-blue-200",
   breakfast: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  other: "bg-zinc-100 text-zinc-700 border-zinc-200",
+  side: "bg-zinc-100 text-zinc-700 border-zinc-200",
+  appetizer: "bg-purple-100 text-purple-700 border-purple-200",
+  snack: "bg-orange-100 text-orange-700 border-orange-200",
+  sauce: "bg-red-100 text-red-700 border-red-200",
+  drinks: "bg-cyan-100 text-cyan-700 border-cyan-200",
+  vegan: "bg-green-100 text-green-700 border-green-200",
 };
 
 export function RecipeDetail({ recipe }: { recipe: Recipe }) {

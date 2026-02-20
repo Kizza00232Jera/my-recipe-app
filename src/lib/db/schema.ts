@@ -1,14 +1,15 @@
 import { pgTable, real, integer, json, text, timestamp } from "drizzle-orm/pg-core";
 
 export const DISH_TYPES = [
-  "main",
-  "dessert",
-  "pizza",
-  "grill",
-  "soup",
-  "salad",
+  "lunch",
+  "dinner",
   "breakfast",
-  "other",
+  "side",
+  "appetizer",
+  "snack",
+  "sauce",
+  "drinks",
+  "vegan",
 ] as const;
 
 export type DishType = (typeof DISH_TYPES)[number];
