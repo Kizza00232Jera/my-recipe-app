@@ -6,13 +6,26 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { createFolder } from "@/server/actions/folders";
-import type { Folder as FolderType, Recipe } from "@/lib/db/schema";
+import type { Folder as FolderType, Recipe, DishType } from "@/lib/db/schema";
+
+const DISH_TYPE_LABELS: Record<DishType, string> = {
+  main: "Main Dish",
+  dessert: "Dessert",
+  pizza: "Pizza",
+  grill: "Grill",
+  soup: "Soup",
+  salad: "Salad",
+  breakfast: "Breakfast",
+  other: "Other",
+};
 
 type FolderSidebarProps = {
   folders: FolderType[];
   recipes: Recipe[];
   activeFolderId: string | null;
   onSelectFolder: (id: string | null) => void;
+  activeDishType: DishType | null;
+  onSelectDishType: (type: DishType | null) => void;
 };
 
 export function FolderSidebar({
@@ -20,6 +33,8 @@ export function FolderSidebar({
   recipes,
   activeFolderId,
   onSelectFolder,
+  activeDishType,
+  onSelectDishType,
 }: FolderSidebarProps) {
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
@@ -28,6 +43,15 @@ export function FolderSidebar({
   function countInFolder(folderId: string) {
     return recipes.filter((r) => r.folderId === folderId).length;
   }
+
+  function countByType(type: DishType) {
+    return recipes.filter((r) => r.dishType === type).length;
+  }
+
+  // Only show dish types that have at least one recipe
+  const usedDishTypes = (Object.keys(DISH_TYPE_LABELS) as DishType[]).filter(
+    (t) => countByType(t) > 0
+  );
 
   async function handleCreate() {
     if (!newFolderName.trim()) return;
@@ -49,10 +73,13 @@ export function FolderSidebar({
       <nav className="space-y-0.5">
         {/* All recipes */}
         <button
-          onClick={() => onSelectFolder(null)}
+          onClick={() => {
+            onSelectFolder(null);
+            onSelectDishType(null);
+          }}
           className={cn(
             "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
-            activeFolderId === null
+            activeFolderId === null && activeDishType === null
               ? "bg-zinc-900 text-white"
               : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
           )}
@@ -62,14 +89,45 @@ export function FolderSidebar({
           <span
             className={cn(
               "ml-auto text-xs",
-              activeFolderId === null ? "text-zinc-300" : "text-zinc-400"
+              activeFolderId === null && activeDishType === null
+                ? "text-zinc-300"
+                : "text-zinc-400"
             )}
           >
             {recipes.length}
           </span>
         </button>
 
-        {/* Folder divider */}
+        {/* Dish types */}
+        {usedDishTypes.length > 0 && (
+          <>
+            <p className="px-3 pt-4 pb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
+              By Type
+            </p>
+            {usedDishTypes.map((type) => {
+              const isActive = activeDishType === type;
+              return (
+                <button
+                  key={type}
+                  onClick={() => onSelectDishType(isActive ? null : type)}
+                  className={cn(
+                    "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
+                    isActive
+                      ? "bg-zinc-900 text-white"
+                      : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
+                  )}
+                >
+                  <span className="flex-1 truncate text-left">{DISH_TYPE_LABELS[type]}</span>
+                  <span className={cn("text-xs", isActive ? "text-zinc-300" : "text-zinc-400")}>
+                    {countByType(type)}
+                  </span>
+                </button>
+              );
+            })}
+          </>
+        )}
+
+        {/* Folders */}
         {folders.length > 0 && (
           <p className="px-3 pt-4 pb-1 text-xs font-semibold tracking-wider text-zinc-400 uppercase">
             Folders

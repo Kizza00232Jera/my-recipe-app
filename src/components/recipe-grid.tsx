@@ -6,21 +6,23 @@ import { toast } from "sonner";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
 import { moveRecipes } from "@/server/actions/recipes";
-import type { Recipe, Folder } from "@/lib/db/schema";
+import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type RecipeGridProps = {
   recipes: Recipe[];
   folders: Folder[];
   activeFolderId: string | null;
+  activeDishType: DishType | null;
 };
 
-export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps) {
+export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }: RecipeGridProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [targetFolderId, setTargetFolderId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
 
-  const filtered =
-    activeFolderId === null ? recipes : recipes.filter((r) => r.folderId === activeFolderId);
+  const filtered = recipes
+    .filter((r) => activeFolderId === null || r.folderId === activeFolderId)
+    .filter((r) => activeDishType === null || r.dishType === activeDishType);
 
   function toggleSelect(id: string) {
     setSelected((prev) => {

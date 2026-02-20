@@ -7,7 +7,7 @@ import { Button } from "@/components/ui/button";
 import { RecipeGrid } from "@/components/recipe-grid";
 import { FolderSidebar } from "@/components/folder-sidebar";
 import { RecipeUploadDialog } from "@/components/recipe-upload-dialog";
-import type { Recipe, Folder } from "@/lib/db/schema";
+import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type HomeClientProps = {
   recipes: Recipe[];
@@ -16,6 +16,7 @@ type HomeClientProps = {
 
 export function HomeClient({ recipes, folders }: HomeClientProps) {
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
+  const [activeDishType, setActiveDishType] = useState<DishType | null>(null);
   const [uploadOpen, setUploadOpen] = useState(false);
 
   return (
@@ -44,8 +45,15 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
           recipes={recipes}
           activeFolderId={activeFolderId}
           onSelectFolder={setActiveFolderId}
+          activeDishType={activeDishType}
+          onSelectDishType={setActiveDishType}
         />
-        <RecipeGrid recipes={recipes} folders={folders} activeFolderId={activeFolderId} />
+        <RecipeGrid
+          recipes={recipes}
+          folders={folders}
+          activeFolderId={activeFolderId}
+          activeDishType={activeDishType}
+        />
       </div>
     </div>
   );
