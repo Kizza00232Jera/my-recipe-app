@@ -40,6 +40,7 @@ type MobileFilterBarProps = {
 
 export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileFilterBarProps) {
   const [open, setOpen] = useState(false);
+  const [draft, setDraft] = useState<MobileFilters>(filters);
 
   const isFiltered =
     filters.dishTypes.length > 0 ||
@@ -61,34 +62,45 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
         recipes.filter((r) => r.dishTypes.includes(a)).length
     );
 
+  function openSheet() {
+    setDraft(filters); // sync draft to currently applied filters before opening
+    setOpen(true);
+  }
+
   function toggleDishType(type: DishType) {
-    const next = filters.dishTypes.includes(type)
-      ? filters.dishTypes.filter((t) => t !== type)
-      : [...filters.dishTypes, type];
-    onFilter({ ...filters, dishTypes: next });
+    const next = draft.dishTypes.includes(type)
+      ? draft.dishTypes.filter((t) => t !== type)
+      : [...draft.dishTypes, type];
+    setDraft({ ...draft, dishTypes: next });
   }
 
   function toggleFolder(id: string) {
-    const next = filters.folderIds.includes(id)
-      ? filters.folderIds.filter((f) => f !== id)
-      : [...filters.folderIds, id];
-    onFilter({ ...filters, folderIds: next });
+    const next = draft.folderIds.includes(id)
+      ? draft.folderIds.filter((f) => f !== id)
+      : [...draft.folderIds, id];
+    setDraft({ ...draft, folderIds: next });
   }
 
   function setCookMin(val: string) {
     const parsed = val === "" ? null : parseInt(val, 10);
     if (parsed !== null && isNaN(parsed)) return;
-    onFilter({ ...filters, cookTimeMin: parsed });
+    setDraft({ ...draft, cookTimeMin: parsed });
   }
 
   function setCookMax(val: string) {
     const parsed = val === "" ? null : parseInt(val, 10);
     if (parsed !== null && isNaN(parsed)) return;
-    onFilter({ ...filters, cookTimeMax: parsed });
+    setDraft({ ...draft, cookTimeMax: parsed });
+  }
+
+  function applyFilters() {
+    onFilter(draft);
+    setOpen(false);
   }
 
   function resetAll() {
     onFilter(DEFAULT_MOBILE_FILTERS);
+    setOpen(false);
   }
 
   return (
@@ -96,9 +108,9 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
       {/* Filter bar */}
       <div className="md:hidden border-b border-zinc-200 bg-white">
         <div className="flex items-center gap-2 px-4 py-3">
-          {/* All chip — clicking resets all filters */}
+          {/* All chip — clicking resets applied filters immediately */}
           <button
-            onClick={resetAll}
+            onClick={() => onFilter(DEFAULT_MOBILE_FILTERS)}
             className={cn(
               "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               !isFiltered
@@ -115,7 +127,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
 
           {/* Filter button */}
           <button
-            onClick={() => setOpen(true)}
+            onClick={openSheet}
             className={cn(
               "relative inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               isFiltered
@@ -150,17 +162,17 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
       {/* Bottom sheet */}
       <div
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-[60] max-h-[82vh] overflow-y-auto rounded-t-2xl bg-white shadow-xl transition-transform duration-300 ease-out md:hidden",
+          "fixed bottom-0 left-0 right-0 z-[60] flex max-h-[82vh] flex-col rounded-t-2xl bg-white shadow-xl transition-transform duration-300 ease-out md:hidden",
           open ? "translate-y-0" : "translate-y-full"
         )}
       >
         {/* Sheet header */}
-        <div className="sticky top-0 flex items-center justify-between border-b border-zinc-100 bg-white px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-5 py-4">
           <span className="text-base font-semibold text-zinc-900">Filter</span>
           <div className="flex items-center gap-4">
             {isFiltered && (
               <button
-                onClick={() => { resetAll(); setOpen(false); }}
+                onClick={resetAll}
                 className="text-xs font-medium text-zinc-500 hover:text-zinc-900"
               >
                 Reset all
@@ -172,7 +184,8 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
           </div>
         </div>
 
-        <div className="space-y-7 px-5 py-6 pb-12">
+        {/* Scrollable content */}
+        <div className="flex-1 space-y-7 overflow-y-auto px-5 py-6">
           {/* Cook time range */}
           <section>
             <p className="mb-3 text-sm font-semibold text-zinc-900">Cook time</p>
@@ -182,7 +195,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                 <input
                   type="number"
                   min={0}
-                  value={filters.cookTimeMin ?? ""}
+                  value={draft.cookTimeMin ?? ""}
                   onChange={(e) => setCookMin(e.target.value)}
                   placeholder="0"
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
@@ -195,7 +208,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                 <input
                   type="number"
                   min={0}
-                  value={filters.cookTimeMax ?? ""}
+                  value={draft.cookTimeMax ?? ""}
                   onChange={(e) => setCookMax(e.target.value)}
                   placeholder="any"
                   className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
@@ -211,7 +224,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
               <p className="mb-3 text-sm font-semibold text-zinc-900">Dish type</p>
               <div className="flex flex-wrap gap-2">
                 {usedDishTypes.map((type) => {
-                  const active = filters.dishTypes.includes(type);
+                  const active = draft.dishTypes.includes(type);
                   return (
                     <button
                       key={type}
@@ -242,7 +255,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
               <p className="mb-3 text-sm font-semibold text-zinc-900">Folders</p>
               <div className="flex flex-wrap gap-2">
                 {folders.map((folder) => {
-                  const active = filters.folderIds.includes(folder.id);
+                  const active = draft.folderIds.includes(folder.id);
                   const count = recipes.filter((r) => r.folderIds.includes(folder.id)).length;
                   return (
                     <button
@@ -267,6 +280,16 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
               </div>
             </section>
           )}
+        </div>
+
+        {/* Sticky Apply footer */}
+        <div className="shrink-0 border-t border-zinc-100 px-5 py-4">
+          <button
+            onClick={applyFilters}
+            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-colors active:bg-zinc-700"
+          >
+            Apply
+          </button>
         </div>
       </div>
     </>
