@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { FolderOpen, Folder, Plus, UtensilsCrossed } from "lucide-react";
+import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { createFolder } from "@/server/actions/folders";
 import type { Folder as FolderType, Recipe } from "@/lib/db/schema";
 
 type FolderSidebarProps = {
@@ -21,9 +23,25 @@ export function FolderSidebar({
 }: FolderSidebarProps) {
   const [newFolderName, setNewFolderName] = useState("");
   const [isCreating, setIsCreating] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   function countInFolder(folderId: string) {
     return recipes.filter((r) => r.folderId === folderId).length;
+  }
+
+  async function handleCreate() {
+    if (!newFolderName.trim()) return;
+    setIsSubmitting(true);
+    try {
+      await createFolder(newFolderName.trim());
+      toast.success(`Folder "${newFolderName.trim()}" created.`);
+      setNewFolderName("");
+      setIsCreating(false);
+    } catch {
+      toast.error("Failed to create folder. Please try again.");
+    } finally {
+      setIsSubmitting(false);
+    }
   }
 
   return (
@@ -91,20 +109,29 @@ export function FolderSidebar({
               value={newFolderName}
               onChange={(e) => setNewFolderName(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") setIsCreating(false);
-                if (e.key === "Escape") setIsCreating(false);
+                if (e.key === "Enter") handleCreate();
+                if (e.key === "Escape") {
+                  setIsCreating(false);
+                  setNewFolderName("");
+                }
               }}
               placeholder="Folder name…"
               className="focus:ring-primary w-full rounded-lg border border-zinc-200 px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
             />
             <div className="flex gap-1.5">
-              <Button size="sm" className="flex-1 text-xs" onClick={() => setIsCreating(false)}>
-                Create
+              <Button
+                size="sm"
+                className="flex-1 text-xs"
+                onClick={handleCreate}
+                disabled={!newFolderName.trim() || isSubmitting}
+              >
+                {isSubmitting ? "Creating…" : "Create"}
               </Button>
               <Button
                 size="sm"
                 variant="ghost"
                 className="text-xs"
+                disabled={isSubmitting}
                 onClick={() => {
                   setIsCreating(false);
                   setNewFolderName("");

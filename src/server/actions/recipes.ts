@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq } from "drizzle-orm";
+import { and, eq, inArray } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { recipes } from "@/lib/db/schema";
 import { getOrCreateUser } from "@/lib/db/queries";
@@ -66,6 +66,28 @@ export async function deleteRecipe(id: string) {
     await db
       .delete(recipes)
       .where(and(eq(recipes.id, id), eq(recipes.userId, dbUser.id)));
+
+    revalidatePath("/");
+  } catch (err) {
+    Sentry.captureException(err);
+    throw err;
+  }
+}
+
+export async function moveRecipes(ids: string[], folderId: string | null) {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) throw new Error("Unauthorized");
+
+    const dbUser = await getOrCreateUser(
+      clerkUser.id,
+      clerkUser.emailAddresses[0]?.emailAddress ?? ""
+    );
+
+    await db
+      .update(recipes)
+      .set({ folderId })
+      .where(and(inArray(recipes.id, ids), eq(recipes.userId, dbUser.id)));
 
     revalidatePath("/");
   } catch (err) {

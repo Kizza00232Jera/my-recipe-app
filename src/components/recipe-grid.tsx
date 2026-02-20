@@ -2,8 +2,10 @@
 
 import { useState } from "react";
 import { FolderInput } from "lucide-react";
+import { toast } from "sonner";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
+import { moveRecipes } from "@/server/actions/recipes";
 import type { Recipe, Folder } from "@/lib/db/schema";
 
 type RecipeGridProps = {
@@ -14,6 +16,8 @@ type RecipeGridProps = {
 
 export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [targetFolderId, setTargetFolderId] = useState("");
+  const [isMoving, setIsMoving] = useState(false);
 
   const filtered =
     activeFolderId === null ? recipes : recipes.filter((r) => r.folderId === activeFolderId);
@@ -29,6 +33,24 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
 
   function clearSelected() {
     setSelected(new Set());
+    setTargetFolderId("");
+  }
+
+  async function handleMove() {
+    if (!targetFolderId || selected.size === 0) return;
+    setIsMoving(true);
+    try {
+      await moveRecipes(Array.from(selected), targetFolderId);
+      const folder = folders.find((f) => f.id === targetFolderId);
+      toast.success(
+        `${selected.size} recipe${selected.size > 1 ? "s" : ""} moved to "${folder?.name}".`
+      );
+      clearSelected();
+    } catch {
+      toast.error("Failed to move recipes. Please try again.");
+    } finally {
+      setIsMoving(false);
+    }
   }
 
   return (
@@ -38,7 +60,11 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
         <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <span className="text-sm font-medium text-zinc-700">{selected.size} selected</span>
           <div className="ml-auto flex items-center gap-2">
-            <select className="focus:ring-primary rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:outline-none">
+            <select
+              value={targetFolderId}
+              onChange={(e) => setTargetFolderId(e.target.value)}
+              className="focus:ring-primary rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
+            >
               <option value="">Move to folder…</option>
               {folders.map((f) => (
                 <option key={f.id} value={f.id}>
@@ -46,11 +72,17 @@ export function RecipeGrid({ recipes, folders, activeFolderId }: RecipeGridProps
                 </option>
               ))}
             </select>
-            <Button size="sm" variant="outline" className="gap-1.5">
+            <Button
+              size="sm"
+              variant="outline"
+              className="gap-1.5"
+              disabled={!targetFolderId || isMoving}
+              onClick={handleMove}
+            >
               <FolderInput size={14} />
-              Move
+              {isMoving ? "Moving…" : "Move"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={clearSelected}>
+            <Button size="sm" variant="ghost" onClick={clearSelected} disabled={isMoving}>
               Cancel
             </Button>
           </div>
