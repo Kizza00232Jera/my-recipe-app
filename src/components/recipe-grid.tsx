@@ -6,6 +6,7 @@ import { toast } from "sonner";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
 import { addRecipesToFolder } from "@/server/actions/recipes";
+import type { MobileFilters } from "@/components/mobile-filter-bar";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type RecipeGridProps = {
@@ -13,16 +14,21 @@ type RecipeGridProps = {
   folders: Folder[];
   activeFolderId: string | null;
   activeDishType: DishType | null;
+  mobileFilters: MobileFilters;
 };
 
-export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }: RecipeGridProps) {
+export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, mobileFilters }: RecipeGridProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [targetFolderId, setTargetFolderId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
 
   const filtered = recipes
     .filter((r) => activeFolderId === null || r.folderIds.includes(activeFolderId))
-    .filter((r) => activeDishType === null || r.dishTypes.includes(activeDishType));
+    .filter((r) => activeDishType === null || r.dishTypes.includes(activeDishType))
+    .filter((r) => mobileFilters.dishTypes.length === 0 || r.dishTypes.some((t) => mobileFilters.dishTypes.includes(t as DishType)))
+    .filter((r) => mobileFilters.folderIds.length === 0 || r.folderIds.some((id) => mobileFilters.folderIds.includes(id)))
+    .filter((r) => mobileFilters.cookTimeMin === null || r.cookTime >= mobileFilters.cookTimeMin)
+    .filter((r) => mobileFilters.cookTimeMax === null || r.cookTime <= mobileFilters.cookTimeMax);
 
   function toggleSelect(id: string) {
     setSelected((prev) => {

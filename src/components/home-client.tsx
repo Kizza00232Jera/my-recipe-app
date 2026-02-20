@@ -5,7 +5,8 @@ import { useUser, UserButton } from "@clerk/nextjs";
 import { ChefHat } from "lucide-react";
 import { RecipeGrid } from "@/components/recipe-grid";
 import { FolderSidebar } from "@/components/folder-sidebar";
-import { MobileFilterBar } from "@/components/mobile-filter-bar";
+import { MobileFilterBar, DEFAULT_MOBILE_FILTERS } from "@/components/mobile-filter-bar";
+import type { MobileFilters } from "@/components/mobile-filter-bar";
 import { RecipeUploadDialog } from "@/components/recipe-upload-dialog";
 import { BottomNav } from "@/components/bottom-nav";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
@@ -19,6 +20,7 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
   const { user } = useUser();
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeDishType, setActiveDishType] = useState<DishType | null>(null);
+  const [mobileFilters, setMobileFilters] = useState<MobileFilters>(DEFAULT_MOBILE_FILTERS);
   const [uploadOpen, setUploadOpen] = useState(false);
 
   const firstName = user?.firstName || user?.username || "there";
@@ -57,8 +59,9 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
       {/* Mobile filter bar */}
       <MobileFilterBar
         recipes={recipes}
-        activeDishType={activeDishType}
-        onSelectDishType={setActiveDishType}
+        folders={folders}
+        filters={mobileFilters}
+        onFilter={setMobileFilters}
       />
 
       <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} folders={folders} />
@@ -78,6 +81,7 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
           folders={folders}
           activeFolderId={activeFolderId}
           activeDishType={activeDishType}
+          mobileFilters={mobileFilters}
         />
       </div>
 
