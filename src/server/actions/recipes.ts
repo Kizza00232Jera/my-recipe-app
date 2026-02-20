@@ -8,6 +8,7 @@ import { and, eq } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { recipes } from "@/lib/db/schema";
 import { getOrCreateUser } from "@/lib/db/queries";
+import { uploadRatelimit, deleteRatelimit } from "@/lib/ratelimit";
 import type { DishType } from "@/lib/db/schema";
 
 type CreateRecipeInput = {
@@ -26,6 +27,9 @@ export async function createRecipe(input: CreateRecipeInput) {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("Unauthorized");
+
+    const { success } = await uploadRatelimit.limit(clerkUser.id);
+    if (!success) throw new Error("Too many uploads. Please try again later.");
 
     const dbUser = await getOrCreateUser(
       clerkUser.id,
@@ -50,6 +54,9 @@ export async function deleteRecipe(id: string) {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("Unauthorized");
+
+    const { success } = await deleteRatelimit.limit(clerkUser.id);
+    if (!success) throw new Error("Too many deletes. Please try again later.");
 
     const dbUser = await getOrCreateUser(
       clerkUser.id,
