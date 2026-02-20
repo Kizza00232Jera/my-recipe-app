@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
 import { Folder, ImagePlus, Plus, Star, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -12,10 +12,10 @@ import {
 } from "@/components/ui/dialog";
 import { toast } from "sonner";
 import { UploadButton } from "@/lib/uploadthing-client";
-import { createRecipe } from "@/server/actions/recipes";
+import { createRecipe, updateRecipe } from "@/server/actions/recipes";
 import { cn } from "@/lib/utils";
 import { DISH_TYPES } from "@/lib/db/schema";
-import type { DishType, Folder as FolderType } from "@/lib/db/schema";
+import type { DishType, Folder as FolderType, Recipe } from "@/lib/db/schema";
 
 const DISH_TYPE_LABELS: Record<DishType, string> = {
   lunch: "Lunch",
@@ -35,9 +35,10 @@ type Props = {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   folders: FolderType[];
+  recipe?: Recipe;
 };
 
-export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
+export function RecipeUploadDialog({ open, onOpenChange, folders, recipe }: Props) {
   const [imageUrl, setImageUrl] = useState("");
   const [name, setName] = useState("");
   const [dishTypes, setDishTypes] = useState<DishType[]>([]);
@@ -51,6 +52,30 @@ export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
   ]);
   const [instructions, setInstructions] = useState("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // Populate fields from recipe when opening in edit mode; reset when opening in create mode
+  useEffect(() => {
+    if (!open) return;
+    if (recipe) {
+      setImageUrl(recipe.imageUrl);
+      setName(recipe.name);
+      setDishTypes(recipe.dishTypes as DishType[]);
+      setSelectedFolderIds(recipe.folderIds ?? []);
+      setTagsInput(recipe.tags.join(", "));
+      setPrepTime(recipe.prepTime.toString());
+      setCookTime(recipe.cookTime.toString());
+      setRating(recipe.rating.toString());
+      setIngredients(
+        (recipe.ingredients as Ingredient[]).length > 0
+          ? (recipe.ingredients as Ingredient[])
+          : [{ amount: "", unit: "", name: "" }]
+      );
+      setInstructions(recipe.instructions);
+    } else {
+      reset();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open]);
 
   function reset() {
     setImageUrl("");
@@ -98,28 +123,35 @@ export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
     e.preventDefault();
     if (!imageUrl || !name || !ratingValid) return;
 
+    const payload = {
+      name,
+      imageUrl,
+      dishTypes,
+      folderIds: selectedFolderIds,
+      tags: tagsInput
+        .split(",")
+        .map((t) => t.trim())
+        .filter(Boolean),
+      prepTime: parseInt(prepTime) || 0,
+      cookTime: parseInt(cookTime) || 0,
+      ingredients: ingredients.filter((i) => i.name.trim()),
+      instructions,
+      rating: ratingNum,
+    };
+
     setIsSubmitting(true);
     try {
-      await createRecipe({
-        name,
-        imageUrl,
-        dishTypes,
-        folderIds: selectedFolderIds,
-        tags: tagsInput
-          .split(",")
-          .map((t) => t.trim())
-          .filter(Boolean),
-        prepTime: parseInt(prepTime) || 0,
-        cookTime: parseInt(cookTime) || 0,
-        ingredients: ingredients.filter((i) => i.name.trim()),
-        instructions,
-        rating: ratingNum,
-      });
-      toast.success("Recipe saved!");
+      if (recipe) {
+        await updateRecipe({ id: recipe.id, ...payload });
+        toast.success("Recipe updated!");
+      } else {
+        await createRecipe(payload);
+        toast.success("Recipe saved!");
+      }
       reset();
       onOpenChange(false);
     } catch {
-      toast.error("Failed to save recipe. Please try again.");
+      toast.error(`Failed to ${recipe ? "update" : "save"} recipe. Please try again.`);
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +161,7 @@ export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Add New Recipe</DialogTitle>
+          <DialogTitle>{recipe ? "Edit Recipe" : "Add New Recipe"}</DialogTitle>
         </DialogHeader>
 
         <form onSubmit={handleSubmit} className="space-y-5 pt-2">
@@ -383,7 +415,7 @@ export function RecipeUploadDialog({ open, onOpenChange, folders }: Props) {
               type="submit"
               disabled={!imageUrl || !name || !ratingValid || isSubmitting}
             >
-              {isSubmitting ? "Saving…" : "Save Recipe"}
+              {isSubmitting ? (recipe ? "Updating…" : "Saving…") : recipe ? "Update Recipe" : "Save Recipe"}
             </Button>
           </div>
         </form>

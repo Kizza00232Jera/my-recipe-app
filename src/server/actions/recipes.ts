@@ -75,6 +75,48 @@ export async function deleteRecipe(id: string) {
   }
 }
 
+type UpdateRecipeInput = {
+  id: string;
+  name: string;
+  imageUrl: string;
+  dishTypes: DishType[];
+  tags: string[];
+  prepTime: number;
+  cookTime: number;
+  ingredients: { amount: string; unit: string; name: string }[];
+  instructions: string;
+  rating: number;
+  folderIds?: string[];
+};
+
+export async function updateRecipe(input: UpdateRecipeInput) {
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) throw new Error("Unauthorized");
+
+    const { success } = await uploadRatelimit.limit(clerkUser.id);
+    if (!success) throw new Error("Too many requests. Please try again later.");
+
+    const dbUser = await getOrCreateUser(
+      clerkUser.id,
+      clerkUser.emailAddresses[0]?.emailAddress ?? ""
+    );
+
+    const { id, ...data } = input;
+
+    await db
+      .update(recipes)
+      .set({ ...data, folderIds: data.folderIds ?? [] })
+      .where(and(eq(recipes.id, id), eq(recipes.userId, dbUser.id)));
+
+    revalidatePath("/");
+    revalidatePath(`/recipe/${id}`);
+  } catch (err) {
+    Sentry.captureException(err);
+    throw err;
+  }
+}
+
 export async function addRecipesToFolder(ids: string[], folderId: string) {
   try {
     const clerkUser = await currentUser();
