@@ -16,20 +16,6 @@ const DISH_TYPE_COLORS: Record<DishType, string> = {
   other: "bg-zinc-100 text-zinc-700 border-zinc-200",
 };
 
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={12}
-          className={cn(i < rating ? "fill-amber-400 text-amber-400" : "text-zinc-300")}
-        />
-      ))}
-    </div>
-  );
-}
-
 type RecipeCardProps = {
   recipe: Recipe;
   selected?: boolean;
@@ -39,7 +25,7 @@ type RecipeCardProps = {
 export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
   return (
     <div className="group relative">
-      {/* Selection checkbox — sits above the Link, stops propagation */}
+      {/* Selection checkbox */}
       {onSelect && (
         <button
           type="button"
@@ -66,45 +52,89 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
         </button>
       )}
 
-      {/* Card — Link triggers the intercepting route modal */}
       <Link
         href={`/recipe/${recipe.id}`}
         className={cn(
-          "block overflow-hidden rounded-xl border bg-white transition-all duration-200",
+          "block overflow-hidden rounded-xl border transition-all duration-200",
           "hover:-translate-y-0.5 hover:shadow-md",
           selected ? "ring-primary border-primary ring-2" : "border-zinc-200"
         )}
       >
-        {/* Hero image */}
-        <div className="relative aspect-[4/3] w-full bg-zinc-100">
-          <Image
-            src={recipe.imageUrl}
-            alt={recipe.name}
-            fill
-            className="object-cover"
-            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-          />
-        </div>
-
-        {/* Card body */}
-        <div className="space-y-2 p-3">
-          <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
-            {recipe.name}
-          </h3>
-
-          <div className="flex items-center justify-between gap-2">
-            <Badge
-              className={cn("border text-xs capitalize", DISH_TYPE_COLORS[recipe.dishType])}
-              variant="outline"
-            >
-              {recipe.dishType}
-            </Badge>
-            <StarRating rating={recipe.rating} />
+        {/* ── Mobile: full-bleed image card ── */}
+        <div className="relative sm:hidden">
+          <div className="relative aspect-[4/3] w-full bg-zinc-100">
+            <Image
+              src={recipe.imageUrl}
+              alt={recipe.name}
+              fill
+              className="object-cover"
+              sizes="100vw"
+            />
+            {/* Dark gradient overlay */}
+            <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
           </div>
 
-          <div className="flex items-center gap-1 text-xs text-zinc-500">
-            <Clock size={12} />
-            <span>{recipe.cookTime} min cook</span>
+          {/* Rating — top right */}
+          <div className="absolute top-2.5 right-2.5 flex items-center gap-1 rounded-full bg-black/50 px-2 py-1 backdrop-blur-sm">
+            <Star size={11} className="fill-amber-400 text-amber-400" />
+            <span className="text-xs font-semibold text-white">
+              {recipe.rating.toFixed(1)}
+            </span>
+          </div>
+
+          {/* Title + cook time — bottom overlay */}
+          <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
+            <p className="line-clamp-2 text-sm font-bold leading-tight text-white">
+              {recipe.name}
+            </p>
+            <div className="mt-1 flex items-center gap-1 text-xs text-white/80">
+              <Clock size={11} />
+              <span>{recipe.cookTime} min</span>
+            </div>
+          </div>
+        </div>
+
+        {/* ── Desktop: classic card with image + body ── */}
+        <div className="hidden sm:block bg-white">
+          <div className="relative aspect-[4/3] w-full bg-zinc-100">
+            <Image
+              src={recipe.imageUrl}
+              alt={recipe.name}
+              fill
+              className="object-cover"
+              sizes="(max-width: 1024px) 50vw, 33vw"
+            />
+          </div>
+
+          <div className="space-y-2 p-3">
+            <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
+              {recipe.name}
+            </h3>
+
+            <div className="flex items-center justify-between gap-2">
+              {recipe.dishTypes[0] && (
+                <Badge
+                  className={cn(
+                    "border text-xs capitalize",
+                    DISH_TYPE_COLORS[recipe.dishTypes[0] as DishType]
+                  )}
+                  variant="outline"
+                >
+                  {recipe.dishTypes[0]}
+                </Badge>
+              )}
+              <div className="flex items-center gap-1 ml-auto">
+                <Star size={12} className="fill-amber-400 text-amber-400" />
+                <span className="text-xs font-medium text-zinc-600">
+                  {recipe.rating.toFixed(1)}
+                </span>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-1 text-xs text-zinc-500">
+              <Clock size={12} />
+              <span>{recipe.cookTime} min cook</span>
+            </div>
           </div>
         </div>
       </Link>

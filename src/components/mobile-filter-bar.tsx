@@ -40,7 +40,7 @@ export function MobileFilterBar({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   const usedDishTypes = (Object.keys(DISH_TYPE_LABELS) as DishType[]).filter((t) =>
-    recipes.some((r) => r.dishType === t)
+    recipes.some((r) => r.dishTypes.includes(t))
   );
 
   async function handleCreate() {
@@ -99,7 +99,7 @@ export function MobileFilterBar({
             >
               {DISH_TYPE_LABELS[type]}
               <span className={cn("text-[10px]", isActive ? "text-zinc-300" : "text-zinc-400")}>
-                {recipes.filter((r) => r.dishType === type).length}
+                {recipes.filter((r) => r.dishTypes.includes(type)).length}
               </span>
             </button>
           );
@@ -108,7 +108,7 @@ export function MobileFilterBar({
         {/* Folder chips */}
         {folders.map((folder) => {
           const isActive = activeFolderId === folder.id;
-          const count = recipes.filter((r) => r.folderId === folder.id).length;
+          const count = recipes.filter((r) => r.folderIds.includes(folder.id)).length;
           return (
             <button
               key={folder.id}

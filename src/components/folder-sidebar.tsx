@@ -41,11 +41,11 @@ export function FolderSidebar({
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   function countInFolder(folderId: string) {
-    return recipes.filter((r) => r.folderId === folderId).length;
+    return recipes.filter((r) => r.folderIds.includes(folderId)).length;
   }
 
   function countByType(type: DishType) {
-    return recipes.filter((r) => r.dishType === type).length;
+    return recipes.filter((r) => r.dishTypes.includes(type)).length;
   }
 
   // Only show dish types that have at least one recipe

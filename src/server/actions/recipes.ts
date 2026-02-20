@@ -4,7 +4,7 @@ import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
-import { and, eq, inArray } from "drizzle-orm";
+import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { recipes } from "@/lib/db/schema";
 import { getOrCreateUser } from "@/lib/db/queries";
@@ -14,7 +14,7 @@ import type { DishType } from "@/lib/db/schema";
 type CreateRecipeInput = {
   name: string;
   imageUrl: string;
-  dishType: DishType;
+  dishTypes: DishType[];
   tags: string[];
   prepTime: number;
   cookTime: number;
@@ -39,7 +39,7 @@ export async function createRecipe(input: CreateRecipeInput) {
     await db.insert(recipes).values({
       id: createId(),
       userId: dbUser.id,
-      folderId: null,
+      folderIds: [],
       ...input,
     });
 
@@ -74,7 +74,7 @@ export async function deleteRecipe(id: string) {
   }
 }
 
-export async function moveRecipes(ids: string[], folderId: string | null) {
+export async function addRecipesToFolder(ids: string[], folderId: string) {
   try {
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("Unauthorized");
@@ -84,9 +84,17 @@ export async function moveRecipes(ids: string[], folderId: string | null) {
       clerkUser.emailAddresses[0]?.emailAddress ?? ""
     );
 
+    // Append folderId to folderIds array, skipping if already present
     await db
       .update(recipes)
-      .set({ folderId })
+      .set({
+        folderIds: sql`
+          CASE WHEN ${folderId}::text = ANY(folder_ids)
+          THEN folder_ids
+          ELSE array_append(folder_ids, ${folderId}::text)
+          END
+        `,
+      })
       .where(and(inArray(recipes.id, ids), eq(recipes.userId, dbUser.id)));
 
     revalidatePath("/");

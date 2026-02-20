@@ -5,7 +5,7 @@ import { FolderInput } from "lucide-react";
 import { toast } from "sonner";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
-import { moveRecipes } from "@/server/actions/recipes";
+import { addRecipesToFolder } from "@/server/actions/recipes";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type RecipeGridProps = {
@@ -21,8 +21,8 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }:
   const [isMoving, setIsMoving] = useState(false);
 
   const filtered = recipes
-    .filter((r) => activeFolderId === null || r.folderId === activeFolderId)
-    .filter((r) => activeDishType === null || r.dishType === activeDishType);
+    .filter((r) => activeFolderId === null || r.folderIds.includes(activeFolderId))
+    .filter((r) => activeDishType === null || r.dishTypes.includes(activeDishType));
 
   function toggleSelect(id: string) {
     setSelected((prev) => {
@@ -38,18 +38,18 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }:
     setTargetFolderId("");
   }
 
-  async function handleMove() {
+  async function handleAdd() {
     if (!targetFolderId || selected.size === 0) return;
     setIsMoving(true);
     try {
-      await moveRecipes(Array.from(selected), targetFolderId);
+      await addRecipesToFolder(Array.from(selected), targetFolderId);
       const folder = folders.find((f) => f.id === targetFolderId);
       toast.success(
-        `${selected.size} recipe${selected.size > 1 ? "s" : ""} moved to "${folder?.name}".`
+        `${selected.size} recipe${selected.size > 1 ? "s" : ""} added to "${folder?.name}".`
       );
       clearSelected();
     } catch {
-      toast.error("Failed to move recipes. Please try again.");
+      toast.error("Failed to add recipes to folder. Please try again.");
     } finally {
       setIsMoving(false);
     }
@@ -67,7 +67,7 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }:
               onChange={(e) => setTargetFolderId(e.target.value)}
               className="focus:ring-primary rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
             >
-              <option value="">Move to folder…</option>
+              <option value="">Add to folder…</option>
               {folders.map((f) => (
                 <option key={f.id} value={f.id}>
                   {f.name}
@@ -79,10 +79,10 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }:
               variant="outline"
               className="gap-1.5"
               disabled={!targetFolderId || isMoving}
-              onClick={handleMove}
+              onClick={handleAdd}
             >
               <FolderInput size={14} />
-              {isMoving ? "Moving…" : "Move"}
+              {isMoving ? "Adding…" : "Add"}
             </Button>
             <Button size="sm" variant="ghost" onClick={clearSelected} disabled={isMoving}>
               Cancel
@@ -99,8 +99,8 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType }:
         </div>
       )}
 
-      {/* Grid */}
-      <div className="grid grid-cols-2 gap-4 sm:grid-cols-3 lg:grid-cols-4">
+      {/* Grid — 1 col on mobile, progressive on larger screens */}
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
         {filtered.map((recipe) => (
           <RecipeCard
             key={recipe.id}

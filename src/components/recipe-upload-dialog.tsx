@@ -14,18 +14,19 @@ import { toast } from "sonner";
 import { UploadButton } from "@/lib/uploadthing-client";
 import { createRecipe } from "@/server/actions/recipes";
 import { cn } from "@/lib/utils";
+import { DISH_TYPES } from "@/lib/db/schema";
 import type { DishType } from "@/lib/db/schema";
 
-const DISH_TYPES: { value: DishType; label: string }[] = [
-  { value: "main", label: "Main Dish" },
-  { value: "dessert", label: "Dessert" },
-  { value: "pizza", label: "Pizza" },
-  { value: "grill", label: "Grill" },
-  { value: "soup", label: "Soup" },
-  { value: "salad", label: "Salad" },
-  { value: "breakfast", label: "Breakfast" },
-  { value: "other", label: "Other" },
-];
+const DISH_TYPE_LABELS: Record<DishType, string> = {
+  main: "Main",
+  dessert: "Dessert",
+  pizza: "Pizza",
+  grill: "Grill",
+  soup: "Soup",
+  salad: "Salad",
+  breakfast: "Breakfast",
+  other: "Other",
+};
 
 type Ingredient = { amount: string; unit: string; name: string };
 
@@ -34,12 +35,11 @@ type Props = { open: boolean; onOpenChange: (open: boolean) => void };
 export function RecipeUploadDialog({ open, onOpenChange }: Props) {
   const [imageUrl, setImageUrl] = useState("");
   const [name, setName] = useState("");
-  const [dishType, setDishType] = useState<DishType>("main");
+  const [dishTypes, setDishTypes] = useState<DishType[]>([]);
   const [tagsInput, setTagsInput] = useState("");
   const [prepTime, setPrepTime] = useState("");
   const [cookTime, setCookTime] = useState("");
-  const [rating, setRating] = useState(0);
-  const [hoverRating, setHoverRating] = useState(0);
+  const [rating, setRating] = useState("");
   const [ingredients, setIngredients] = useState<Ingredient[]>([
     { amount: "", unit: "", name: "" },
   ]);
@@ -49,14 +49,19 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
   function reset() {
     setImageUrl("");
     setName("");
-    setDishType("main");
+    setDishTypes([]);
     setTagsInput("");
     setPrepTime("");
     setCookTime("");
-    setRating(0);
-    setHoverRating(0);
+    setRating("");
     setIngredients([{ amount: "", unit: "", name: "" }]);
     setInstructions("");
+  }
+
+  function toggleDishType(type: DishType) {
+    setDishTypes((prev) =>
+      prev.includes(type) ? prev.filter((t) => t !== type) : [...prev, type]
+    );
   }
 
   function addIngredient() {
@@ -73,16 +78,19 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
     );
   }
 
+  const ratingNum = parseFloat(rating);
+  const ratingValid = !isNaN(ratingNum) && ratingNum >= 0 && ratingNum <= 5;
+
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
-    if (!imageUrl || !name || rating === 0) return;
+    if (!imageUrl || !name || !ratingValid) return;
 
     setIsSubmitting(true);
     try {
       await createRecipe({
         name,
         imageUrl,
-        dishType,
+        dishTypes,
         tags: tagsInput
           .split(",")
           .map((t) => t.trim())
@@ -91,7 +99,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
         cookTime: parseInt(cookTime) || 0,
         ingredients: ingredients.filter((i) => i.name.trim()),
         instructions,
-        rating,
+        rating: ratingNum,
       });
       toast.success("Recipe saved!");
       reset();
@@ -105,7 +113,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-h-[90vh] max-w-2xl overflow-y-auto">
+      <DialogContent className="max-h-[90vh] w-full max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Add New Recipe</DialogTitle>
         </DialogHeader>
@@ -157,27 +165,39 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
             />
           </div>
 
-          {/* Dish type + times row */}
-          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-            <div>
-              <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-                Dish type
-              </label>
-              <select
-                value={dishType}
-                onChange={(e) => setDishType(e.target.value as DishType)}
-                className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:outline-none"
-              >
-                {DISH_TYPES.map((d) => (
-                  <option key={d.value} value={d.value}>
-                    {d.label}
-                  </option>
-                ))}
-              </select>
+          {/* Dish types — multi-select chips */}
+          <div>
+            <label className="mb-1.5 block text-sm font-medium text-zinc-700">
+              Dish type{" "}
+              <span className="font-normal text-zinc-400">(select all that apply)</span>
+            </label>
+            <div className="flex flex-wrap gap-2">
+              {DISH_TYPES.map((type) => {
+                const active = dishTypes.includes(type);
+                return (
+                  <button
+                    key={type}
+                    type="button"
+                    onClick={() => toggleDishType(type)}
+                    className={cn(
+                      "rounded-full border px-3 py-1 text-xs font-medium transition-colors",
+                      active
+                        ? "border-zinc-900 bg-zinc-900 text-white"
+                        : "border-zinc-200 bg-white text-zinc-600 hover:border-zinc-400"
+                    )}
+                  >
+                    {DISH_TYPE_LABELS[type]}
+                  </button>
+                );
+              })}
             </div>
+          </div>
+
+          {/* Prep + cook times */}
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-                Prep (min)
+                Prep time (min)
               </label>
               <input
                 type="number"
@@ -190,7 +210,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
             </div>
             <div>
               <label className="mb-1.5 block text-sm font-medium text-zinc-700">
-                Cook (min)
+                Cook time (min)
               </label>
               <input
                 type="number"
@@ -203,31 +223,24 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
             </div>
           </div>
 
-          {/* Rating */}
+          {/* Rating — decimal input */}
           <div>
             <label className="mb-1.5 block text-sm font-medium text-zinc-700">
               Rating <span className="text-red-500">*</span>
             </label>
-            <div className="flex gap-1">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button
-                  key={star}
-                  type="button"
-                  onClick={() => setRating(star)}
-                  onMouseEnter={() => setHoverRating(star)}
-                  onMouseLeave={() => setHoverRating(0)}
-                >
-                  <Star
-                    size={24}
-                    className={cn(
-                      "transition-colors",
-                      star <= (hoverRating || rating)
-                        ? "fill-amber-400 text-amber-400"
-                        : "text-zinc-300"
-                    )}
-                  />
-                </button>
-              ))}
+            <div className="flex items-center gap-2">
+              <Star size={18} className="shrink-0 fill-amber-400 text-amber-400" />
+              <input
+                type="number"
+                min={0}
+                max={5}
+                step={0.1}
+                value={rating}
+                onChange={(e) => setRating(e.target.value)}
+                placeholder="4.5"
+                className="w-28 rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+              />
+              <span className="text-sm text-zinc-400">out of 5.0</span>
             </div>
           </div>
 
@@ -240,7 +253,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
             <input
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
-              placeholder="chicken, spicy, quick"
+              placeholder="vegan, spicy, quick"
               className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:outline-none"
             />
           </div>
@@ -323,7 +336,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
             </Button>
             <Button
               type="submit"
-              disabled={!imageUrl || !name || rating === 0 || isSubmitting}
+              disabled={!imageUrl || !name || !ratingValid || isSubmitting}
             >
               {isSubmitting ? "Saving…" : "Save Recipe"}
             </Button>

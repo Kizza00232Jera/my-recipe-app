@@ -1,6 +1,6 @@
-import { pgEnum, pgTable, integer, json, text, timestamp } from "drizzle-orm/pg-core";
+import { pgTable, real, integer, json, text, timestamp } from "drizzle-orm/pg-core";
 
-export const dishTypeEnum = pgEnum("dish_type", [
+export const DISH_TYPES = [
   "main",
   "dessert",
   "pizza",
@@ -9,7 +9,9 @@ export const dishTypeEnum = pgEnum("dish_type", [
   "salad",
   "breakfast",
   "other",
-]);
+] as const;
+
+export type DishType = (typeof DISH_TYPES)[number];
 
 export const users = pgTable("users", {
   id: text("id").primaryKey(),
@@ -32,10 +34,10 @@ export const recipes = pgTable("recipes", {
   userId: text("user_id")
     .notNull()
     .references(() => users.id, { onDelete: "cascade" }),
-  folderId: text("folder_id").references(() => folders.id, { onDelete: "set null" }),
+  folderIds: text("folder_ids").array().notNull().default([]),
   name: text("name").notNull(),
   imageUrl: text("image_url").notNull(),
-  dishType: dishTypeEnum("dish_type").notNull(),
+  dishTypes: text("dish_types").array().notNull().default([]),
   tags: text("tags").array().notNull().default([]),
   prepTime: integer("prep_time").notNull(),
   cookTime: integer("cook_time").notNull(),
@@ -43,7 +45,7 @@ export const recipes = pgTable("recipes", {
     .notNull()
     .$type<{ amount: string; unit: string; name: string }[]>(),
   instructions: text("instructions").notNull(),
-  rating: integer("rating").notNull(),
+  rating: real("rating").notNull().default(0),
   createdAt: timestamp("created_at").defaultNow().notNull(),
 });
 
@@ -51,4 +53,3 @@ export const recipes = pgTable("recipes", {
 export type Recipe = typeof recipes.$inferSelect;
 export type Folder = typeof folders.$inferSelect;
 export type User = typeof users.$inferSelect;
-export type DishType = (typeof dishTypeEnum.enumValues)[number];

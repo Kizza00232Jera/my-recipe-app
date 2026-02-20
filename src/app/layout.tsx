@@ -36,10 +36,8 @@ export const viewport: Viewport = {
 
 export default function RootLayout({
   children,
-  modal,
 }: Readonly<{
   children: React.ReactNode;
-  modal: React.ReactNode;
 }>) {
   return (
     <ClerkProvider>
@@ -50,7 +48,6 @@ export default function RootLayout({
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <PostHogProvider>
             {children}
-            {modal}
             <Toaster richColors />
           </PostHogProvider>
         </body>

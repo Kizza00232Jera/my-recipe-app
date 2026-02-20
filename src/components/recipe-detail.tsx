@@ -15,20 +15,6 @@ const DISH_TYPE_COLORS: Record<DishType, string> = {
   other: "bg-zinc-100 text-zinc-700 border-zinc-200",
 };
 
-function StarRating({ rating }: { rating: number }) {
-  return (
-    <div className="flex items-center gap-0.5">
-      {Array.from({ length: 5 }).map((_, i) => (
-        <Star
-          key={i}
-          size={16}
-          className={cn(i < rating ? "fill-amber-400 text-amber-400" : "text-zinc-300")}
-        />
-      ))}
-    </div>
-  );
-}
-
 export function RecipeDetail({ recipe }: { recipe: Recipe }) {
   return (
     <div className="space-y-6">
@@ -47,14 +33,22 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
       {/* Title row */}
       <div className="space-y-2">
         <h1 className="text-2xl font-bold text-zinc-900">{recipe.name}</h1>
-        <div className="flex items-center gap-3">
-          <Badge
-            className={cn("border text-xs capitalize", DISH_TYPE_COLORS[recipe.dishType])}
-            variant="outline"
-          >
-            {recipe.dishType}
-          </Badge>
-          <StarRating rating={recipe.rating} />
+        <div className="flex flex-wrap items-center gap-2">
+          {recipe.dishTypes.map((type) => (
+            <Badge
+              key={type}
+              className={cn("border text-xs capitalize", DISH_TYPE_COLORS[type as DishType])}
+              variant="outline"
+            >
+              {type}
+            </Badge>
+          ))}
+          <div className="flex items-center gap-1">
+            <Star size={15} className="fill-amber-400 text-amber-400" />
+            <span className="text-sm font-semibold text-zinc-700">
+              {recipe.rating.toFixed(1)}
+            </span>
+          </div>
         </div>
       </div>
 
