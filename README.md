@@ -49,7 +49,7 @@ Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/bui
 - [x] 8. Taint server-only modules (server-only package)
 - [x] 9. Use next/image component (replace img tags)
 - [x] 10. Error management (Sentry)
-- [ ] 11. Recipe page routing (parallel + intercepting routes)
+- [x] 11. Recipe page routing (parallel + intercepting routes)
 - [ ] 12. Polish upload button UI
 - [ ] 13. Toaster notifications (shadcn/ui toast)
 - [ ] 14. Analytics (PostHog)

@@ -1,3 +1,4 @@
+import Link from "next/link";
 import Image from "next/image";
 import { Star, Clock } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
@@ -37,23 +38,19 @@ type RecipeCardProps = {
 
 export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
   return (
-    <div
-      className={cn(
-        "group relative cursor-pointer overflow-hidden rounded-xl border bg-white transition-all duration-200",
-        "hover:-translate-y-0.5 hover:shadow-md",
-        selected ? "ring-primary border-primary ring-2" : "border-zinc-200"
-      )}
-      onClick={() => onSelect?.(recipe.id)}
-    >
-      {/* Selection checkbox */}
+    <div className="group relative">
+      {/* Selection checkbox — sits above the Link, stops propagation */}
       {onSelect && (
-        <div
+        <button
+          type="button"
+          aria-label={selected ? "Deselect recipe" : "Select recipe"}
           className={cn(
             "absolute top-2 left-2 z-10 h-5 w-5 rounded-full border-2 bg-white transition-all",
             selected
-              ? "border-primary bg-primary"
+              ? "border-primary bg-primary opacity-100"
               : "border-zinc-300 opacity-0 group-hover:opacity-100"
           )}
+          onClick={() => onSelect(recipe.id)}
         >
           {selected && (
             <svg
@@ -66,41 +63,51 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
               <polyline points="20 6 9 17 4 12" />
             </svg>
           )}
-        </div>
+        </button>
       )}
 
-      {/* Hero image */}
-      <div className="relative aspect-[4/3] w-full bg-zinc-100">
-        <Image
-          src={recipe.imageUrl}
-          alt={recipe.name}
-          fill
-          className="object-cover"
-          sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-        />
-      </div>
-
-      {/* Card body */}
-      <div className="space-y-2 p-3">
-        <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
-          {recipe.name}
-        </h3>
-
-        <div className="flex items-center justify-between gap-2">
-          <Badge
-            className={cn("border text-xs capitalize", DISH_TYPE_COLORS[recipe.dishType])}
-            variant="outline"
-          >
-            {recipe.dishType}
-          </Badge>
-          <StarRating rating={recipe.rating} />
+      {/* Card — Link triggers the intercepting route modal */}
+      <Link
+        href={`/recipe/${recipe.id}`}
+        className={cn(
+          "block overflow-hidden rounded-xl border bg-white transition-all duration-200",
+          "hover:-translate-y-0.5 hover:shadow-md",
+          selected ? "ring-primary border-primary ring-2" : "border-zinc-200"
+        )}
+      >
+        {/* Hero image */}
+        <div className="relative aspect-[4/3] w-full bg-zinc-100">
+          <Image
+            src={recipe.imageUrl}
+            alt={recipe.name}
+            fill
+            className="object-cover"
+            sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          />
         </div>
 
-        <div className="flex items-center gap-1 text-xs text-zinc-500">
-          <Clock size={12} />
-          <span>{recipe.cookTime} min cook</span>
+        {/* Card body */}
+        <div className="space-y-2 p-3">
+          <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
+            {recipe.name}
+          </h3>
+
+          <div className="flex items-center justify-between gap-2">
+            <Badge
+              className={cn("border text-xs capitalize", DISH_TYPE_COLORS[recipe.dishType])}
+              variant="outline"
+            >
+              {recipe.dishType}
+            </Badge>
+            <StarRating rating={recipe.rating} />
+          </div>
+
+          <div className="flex items-center gap-1 text-xs text-zinc-500">
+            <Clock size={12} />
+            <span>{recipe.cookTime} min cook</span>
+          </div>
         </div>
-      </div>
+      </Link>
     </div>
   );
 }

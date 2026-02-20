@@ -1,6 +1,6 @@
 import "server-only";
 
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import { createId } from "@paralleldrive/cuid2";
 import { db } from "./index";
 import { folders, recipes, users } from "./schema";
@@ -30,4 +30,13 @@ export async function getFolders(userId: string) {
     .from(folders)
     .where(eq(folders.userId, userId))
     .orderBy(desc(folders.createdAt));
+}
+
+export async function getRecipeById(id: string, userId: string) {
+  const result = await db
+    .select()
+    .from(recipes)
+    .where(and(eq(recipes.id, id), eq(recipes.userId, userId)))
+    .limit(1);
+  return result[0] ?? null;
 }
