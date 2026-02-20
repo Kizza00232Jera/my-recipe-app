@@ -10,6 +10,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import { toast } from "sonner";
 import { UploadButton } from "@/lib/uploadthing-client";
 import { createRecipe } from "@/server/actions/recipes";
 import { cn } from "@/lib/utils";
@@ -92,8 +93,11 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
         instructions,
         rating,
       });
+      toast.success("Recipe saved!");
       reset();
       onOpenChange(false);
+    } catch {
+      toast.error("Failed to save recipe. Please try again.");
     } finally {
       setIsSubmitting(false);
     }
@@ -129,7 +133,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
                 <UploadButton
                   endpoint="recipeImage"
                   onClientUploadComplete={(res) => setImageUrl(res[0]?.ufsUrl ?? "")}
-                  onUploadError={(err) => alert(err.message)}
+                  onUploadError={(err) => { toast.error(err.message); }}
                   appearance={{
                     button: "bg-zinc-900 text-white text-sm px-4 py-2 rounded-lg hover:bg-zinc-700",
                     allowedContent: "text-zinc-400 text-xs mt-1",
