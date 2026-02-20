@@ -40,7 +40,7 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
           {/* Desktop: logo + app name */}
           <div className="hidden items-center gap-2 md:flex">
             <ChefHat size={22} className="text-zinc-900" />
-            <span className="font-semibold text-zinc-900">My Recipe App</span>
+            <span className="font-semibold text-zinc-900">My Recipes</span>
           </div>
 
           <div className="ml-auto flex items-center gap-3">

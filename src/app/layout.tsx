@@ -16,13 +16,13 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "My Recipe App",
+  title: "My Recipes",
   description: "A personal recipe library",
   manifest: "/manifest.webmanifest",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "My Recipe App",
+    title: "My Recipes",
   },
 };
 
