@@ -1,5 +1,6 @@
 "use server";
 
+import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
 import { currentUser } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
@@ -21,20 +22,25 @@ type CreateRecipeInput = {
 };
 
 export async function createRecipe(input: CreateRecipeInput) {
-  const clerkUser = await currentUser();
-  if (!clerkUser) throw new Error("Unauthorized");
+  try {
+    const clerkUser = await currentUser();
+    if (!clerkUser) throw new Error("Unauthorized");
 
-  const dbUser = await getOrCreateUser(
-    clerkUser.id,
-    clerkUser.emailAddresses[0]?.emailAddress ?? ""
-  );
+    const dbUser = await getOrCreateUser(
+      clerkUser.id,
+      clerkUser.emailAddresses[0]?.emailAddress ?? ""
+    );
 
-  await db.insert(recipes).values({
-    id: createId(),
-    userId: dbUser.id,
-    folderId: null,
-    ...input,
-  });
+    await db.insert(recipes).values({
+      id: createId(),
+      userId: dbUser.id,
+      folderId: null,
+      ...input,
+    });
 
-  revalidatePath("/");
+    revalidatePath("/");
+  } catch (err) {
+    Sentry.captureException(err);
+    throw err;
+  }
 }
