@@ -23,9 +23,9 @@ type CreateRecipeInput = {
 
 export async function createRecipe(input: CreateRecipeInput) {
   try {
-    throw new Error("Sentry test — delete me");
     const clerkUser = await currentUser();
     if (!clerkUser) throw new Error("Unauthorized");
+    throw new Error("Sentry test — delete me");
 
     const dbUser = await getOrCreateUser(
       clerkUser.id,
