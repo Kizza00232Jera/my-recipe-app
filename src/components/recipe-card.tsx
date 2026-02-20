@@ -1,6 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
-import { Star, Clock } from "lucide-react";
+import { Star, Clock, Utensils } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Recipe, DishType } from "@/lib/db/schema";
@@ -83,14 +83,20 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
             </span>
           </div>
 
-          {/* Title + cook time — bottom overlay */}
+          {/* Title + times — bottom overlay */}
           <div className="absolute bottom-0 left-0 right-0 px-3 pb-3">
             <p className="line-clamp-2 text-sm font-bold leading-tight text-white">
               {recipe.name}
             </p>
-            <div className="mt-1 flex items-center gap-1 text-xs text-white/80">
-              <Clock size={11} />
-              <span>{recipe.cookTime} min</span>
+            <div className="mt-1 flex items-center gap-3 text-xs text-white/80">
+              <span className="flex items-center gap-1">
+                <Utensils size={11} />
+                {recipe.prepTime} min prep
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock size={11} />
+                {recipe.cookTime} min cook
+              </span>
             </div>
           </div>
         </div>
@@ -132,9 +138,15 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
               </div>
             </div>
 
-            <div className="flex items-center gap-1 text-xs text-zinc-500">
-              <Clock size={12} />
-              <span>{recipe.cookTime} min cook</span>
+            <div className="flex items-center gap-3 text-xs text-zinc-500">
+              <span className="flex items-center gap-1">
+                <Utensils size={12} />
+                {recipe.prepTime} min prep
+              </span>
+              <span className="flex items-center gap-1">
+                <Clock size={12} />
+                {recipe.cookTime} min cook
+              </span>
             </div>
           </div>
         </div>
