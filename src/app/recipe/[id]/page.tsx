@@ -4,6 +4,7 @@ import { currentUser } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
 import { getOrCreateUser, getRecipeById } from "@/lib/db/queries";
 import { RecipeDetail } from "@/components/recipe-detail";
+import { DeleteRecipeButton } from "@/components/delete-recipe-button";
 
 export default async function RecipePage({
   params,
@@ -32,6 +33,9 @@ export default async function RecipePage({
           Back to recipes
         </Link>
         <RecipeDetail recipe={recipe} />
+        <div className="mt-8 border-t border-zinc-200 pt-6">
+          <DeleteRecipeButton recipeId={recipe.id} />
+        </div>
       </div>
     </div>
   );
