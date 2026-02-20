@@ -1,5 +1,5 @@
 import Image from "next/image";
-import { Clock, Star } from "lucide-react";
+import { CalendarDays, Clock, Star } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 import type { Recipe, DishType } from "@/lib/db/schema";
@@ -58,8 +58,8 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
         </div>
       </div>
 
-      {/* Times */}
-      <div className="flex gap-6 text-sm text-zinc-600">
+      {/* Times + date */}
+      <div className="flex flex-wrap gap-6 text-sm text-zinc-600">
         <div className="flex items-center gap-1.5">
           <Clock size={14} />
           <span>
@@ -70,6 +70,19 @@ export function RecipeDetail({ recipe }: { recipe: Recipe }) {
           <Clock size={14} />
           <span>
             <span className="font-medium">{recipe.cookTime} min</span> cook
+          </span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <CalendarDays size={14} />
+          <span>
+            Added{" "}
+            <span className="font-medium">
+              {new Date(recipe.createdAt).toLocaleDateString("en-US", {
+                month: "short",
+                day: "numeric",
+                year: "numeric",
+              })}
+            </span>
           </span>
         </div>
       </div>
