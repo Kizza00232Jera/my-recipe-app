@@ -6,6 +6,8 @@ import { getFolders, getOrCreateUser, getRecipeById } from "@/lib/db/queries";
 import { RecipeDetail } from "@/components/recipe-detail";
 import { DeleteRecipeButton } from "@/components/delete-recipe-button";
 import { EditRecipeButton } from "@/components/edit-recipe-button";
+import { DemoBanner } from "@/components/demo-banner";
+import { DEMO_RECIPES } from "@/lib/demo-data";
 
 export default async function RecipePage({
   params,
@@ -15,9 +17,33 @@ export default async function RecipePage({
   const { id } = await params;
 
   const clerkUser = await currentUser();
+
+  // Guest / demo path — serve from static demo data, no DB call
+  if (!clerkUser) {
+    const recipe = DEMO_RECIPES.find((r) => r.id === id) ?? null;
+    if (!recipe) notFound();
+
+    return (
+      <div className="min-h-screen bg-zinc-50">
+        <DemoBanner />
+        <div className="mx-auto max-w-2xl px-6 py-8">
+          <Link
+            href="/"
+            className="mb-6 flex items-center gap-2 text-sm text-zinc-500 hover:text-zinc-900"
+          >
+            <ArrowLeft size={16} />
+            Back to recipes
+          </Link>
+          <RecipeDetail recipe={recipe} />
+        </div>
+      </div>
+    );
+  }
+
+  // Authenticated path — fetch from DB as before
   const dbUser = await getOrCreateUser(
-    clerkUser!.id,
-    clerkUser!.emailAddresses[0]?.emailAddress ?? ""
+    clerkUser.id,
+    clerkUser.emailAddresses[0]?.emailAddress ?? ""
   );
 
   const [recipe, folders] = await Promise.all([

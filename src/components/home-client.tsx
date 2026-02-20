@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
 import { ChefHat } from "lucide-react";
@@ -9,14 +10,16 @@ import { MobileFilterBar, DEFAULT_MOBILE_FILTERS } from "@/components/mobile-fil
 import type { MobileFilters } from "@/components/mobile-filter-bar";
 import { RecipeUploadDialog } from "@/components/recipe-upload-dialog";
 import { BottomNav } from "@/components/bottom-nav";
+import { DemoBanner } from "@/components/demo-banner";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type HomeClientProps = {
   recipes: Recipe[];
   folders: Folder[];
+  isDemo?: boolean;
 };
 
-export function HomeClient({ recipes, folders }: HomeClientProps) {
+export function HomeClient({ recipes, folders, isDemo = false }: HomeClientProps) {
   const { user } = useUser();
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeDishType, setActiveDishType] = useState<DishType | null>(null);
@@ -27,13 +30,15 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
 
   return (
     <div className="min-h-screen bg-zinc-50">
+      {isDemo && <DemoBanner />}
+
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {/* Mobile: greeting */}
           <div className="flex items-center gap-2 md:hidden">
             <span className="text-base font-semibold text-zinc-900">
-              Hello, {firstName} 👋
+              {isDemo ? "Welcome 👋" : `Hello, ${firstName} 👋`}
             </span>
           </div>
 
@@ -44,14 +49,25 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
           </div>
 
           <div className="ml-auto flex items-center gap-3">
-            {/* Add Recipe button — desktop only (mobile uses bottom nav) */}
-            <button
-              onClick={() => setUploadOpen(true)}
-              className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
-            >
-              + Add Recipe
-            </button>
-            <UserButton />
+            {isDemo ? (
+              <Link
+                href="/sign-in"
+                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+              >
+                Sign in
+              </Link>
+            ) : (
+              <>
+                {/* Add Recipe button — desktop only (mobile uses bottom nav) */}
+                <button
+                  onClick={() => setUploadOpen(true)}
+                  className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
+                >
+                  + Add Recipe
+                </button>
+                <UserButton />
+              </>
+            )}
           </div>
         </div>
       </header>
@@ -64,7 +80,9 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
         onFilter={setMobileFilters}
       />
 
-      <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} folders={folders} />
+      {!isDemo && (
+        <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} folders={folders} />
+      )}
 
       {/* Main layout */}
       <div className="mx-auto flex max-w-7xl gap-8 px-4 py-6 pb-24 sm:px-6 sm:py-8 md:pb-8">
@@ -86,7 +104,7 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
       </div>
 
       {/* Mobile bottom nav */}
-      <BottomNav onAddRecipe={() => setUploadOpen(true)} />
+      <BottomNav onAddRecipe={() => setUploadOpen(true)} isDemo={isDemo} />
     </div>
   );
 }

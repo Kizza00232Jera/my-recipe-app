@@ -1,15 +1,17 @@
 "use client";
 
+import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Home, FolderOpen, Plus, List, Settings } from "lucide-react";
+import { Home, FolderOpen, Plus, List, Settings, LogIn } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
 type BottomNavProps = {
   onAddRecipe: () => void;
+  isDemo?: boolean;
 };
 
-export function BottomNav({ onAddRecipe }: BottomNavProps) {
+export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
   const pathname = usePathname();
   const router = useRouter();
 
@@ -40,15 +42,25 @@ export function BottomNav({ onAddRecipe }: BottomNavProps) {
           <span>Folders</span>
         </button>
 
-        {/* Add Recipe — prominent center button */}
+        {/* Add Recipe / Sign in — prominent center button */}
         <div className="flex flex-col items-center -mt-5">
-          <button
-            onClick={onAddRecipe}
-            className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:scale-95 transition-transform"
-            aria-label="Add recipe"
-          >
-            <Plus size={26} />
-          </button>
+          {isDemo ? (
+            <Link
+              href="/sign-in"
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:scale-95 transition-transform"
+              aria-label="Sign in"
+            >
+              <LogIn size={24} />
+            </Link>
+          ) : (
+            <button
+              onClick={onAddRecipe}
+              className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:scale-95 transition-transform"
+              aria-label="Add recipe"
+            >
+              <Plus size={26} />
+            </button>
+          )}
         </div>
 
         {/* List (coming soon) */}
