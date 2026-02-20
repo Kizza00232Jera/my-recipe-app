@@ -158,7 +158,7 @@ export function RecipeUploadDialog({ open, onOpenChange }: Props) {
           </div>
 
           {/* Dish type + times row */}
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
             <div>
               <label className="mb-1.5 block text-sm font-medium text-zinc-700">
                 Dish type

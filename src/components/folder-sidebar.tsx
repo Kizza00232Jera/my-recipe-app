@@ -69,7 +69,7 @@ export function FolderSidebar({
   }
 
   return (
-    <aside className="w-56 shrink-0">
+    <aside className="hidden md:block w-56 shrink-0">
       <nav className="space-y-0.5">
         {/* All recipes */}
         <button

@@ -6,6 +6,7 @@ import { ChefHat, Plus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { RecipeGrid } from "@/components/recipe-grid";
 import { FolderSidebar } from "@/components/folder-sidebar";
+import { MobileFilterBar } from "@/components/mobile-filter-bar";
 import { RecipeUploadDialog } from "@/components/recipe-upload-dialog";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
@@ -23,23 +24,34 @@ export function HomeClient({ recipes, folders }: HomeClientProps) {
     <div className="min-h-screen bg-zinc-50">
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white">
-        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-6">
+        <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           <ChefHat size={22} className="text-zinc-900" />
           <span className="font-semibold text-zinc-900">My Recipe App</span>
           <div className="ml-auto flex items-center gap-3">
             <Button size="sm" className="gap-1.5" onClick={() => setUploadOpen(true)}>
               <Plus size={15} />
-              Add Recipe
+              <span className="hidden sm:inline">Add Recipe</span>
+              <span className="sm:hidden">Add</span>
             </Button>
             <UserButton />
           </div>
         </div>
       </header>
 
+      {/* Mobile filter bar — visible below header on small screens */}
+      <MobileFilterBar
+        folders={folders}
+        recipes={recipes}
+        activeFolderId={activeFolderId}
+        onSelectFolder={setActiveFolderId}
+        activeDishType={activeDishType}
+        onSelectDishType={setActiveDishType}
+      />
+
       <RecipeUploadDialog open={uploadOpen} onOpenChange={setUploadOpen} />
 
       {/* Main layout */}
-      <div className="mx-auto flex max-w-7xl gap-8 px-6 py-8">
+      <div className="mx-auto flex max-w-7xl gap-8 px-4 py-6 sm:px-6 sm:py-8">
         <FolderSidebar
           folders={folders}
           recipes={recipes}

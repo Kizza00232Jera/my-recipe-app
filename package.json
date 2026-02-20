@@ -15,6 +15,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.38.0",
+    "@ducanh2912/next-pwa": "^10.2.9",
     "@neondatabase/serverless": "^1.0.2",
     "@paralleldrive/cuid2": "^3.3.0",
     "@sentry/nextjs": "^10.39.0",

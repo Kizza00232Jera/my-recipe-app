@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Geist, Geist_Mono } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
@@ -18,6 +18,20 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "My Recipe App",
   description: "A personal recipe library",
+  manifest: "/manifest.webmanifest",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "My Recipe App",
+  },
+};
+
+export const viewport: Viewport = {
+  themeColor: "#18181b",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
 };
 
 export default function RootLayout({
@@ -30,6 +44,9 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
+        <head>
+          <link rel="apple-touch-icon" href="/icons/icon-192.png" />
+        </head>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
           <PostHogProvider>
             {children}
