@@ -2,8 +2,43 @@
 
 import posthog from "posthog-js";
 import { PostHogProvider as PHProvider, usePostHog } from "posthog-js/react";
+import { useUser } from "@clerk/nextjs";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useEffect, Suspense } from "react";
+
+function PostHogIdentify() {
+  const { user, isLoaded } = useUser();
+  const ph = usePostHog();
+
+  useEffect(() => {
+    if (!isLoaded || !ph) return;
+
+    if (user) {
+      const name =
+        user.fullName ||
+        [user.firstName, user.lastName].filter(Boolean).join(" ") ||
+        user.username ||
+        user.primaryEmailAddress?.emailAddress;
+
+      ph.identify(user.id, {
+        $name: name,
+        $email: user.primaryEmailAddress?.emailAddress,
+        $avatar: user.imageUrl,
+      });
+
+      // Force-update person properties on every session
+      ph.people.set({
+        $name: name,
+        $email: user.primaryEmailAddress?.emailAddress,
+        $avatar: user.imageUrl,
+      });
+    } else {
+      ph.reset();
+    }
+  }, [user, isLoaded, ph]);
+
+  return null;
+}
 
 function PostHogPageView() {
   const pathname = usePathname();
@@ -36,6 +71,7 @@ export function PostHogProvider({ children }: { children: React.ReactNode }) {
 
   return (
     <PHProvider client={posthog}>
+      <PostHogIdentify />
       <Suspense fallback={null}>
         <PostHogPageView />
       </Suspense>
