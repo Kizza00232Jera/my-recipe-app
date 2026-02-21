@@ -44,13 +44,18 @@ export function useInstallPrompt() {
     await deferredPrompt.prompt();
     const { outcome } = await deferredPrompt.userChoice;
     if (outcome === "accepted") {
-      // Wait for the browser to finish installing before resolving.
-      // 30 s timeout is a safety net for browsers that never fire appinstalled.
-      await Promise.race([
-        new Promise<void>((resolve) => {
-          window.addEventListener("appinstalled", () => resolve(), { once: true });
-        }),
-        new Promise<void>((resolve) => setTimeout(resolve, 30_000)),
+      // Wait for appinstalled AND a minimum 2s delay before resolving.
+      // Promise.all ensures both conditions are met:
+      //   - appinstalled fires (or 30s safety timeout if the browser never fires it)
+      //   - at least 2 seconds have passed so the "Installing…" state is visible
+      await Promise.all([
+        Promise.race([
+          new Promise<void>((resolve) => {
+            window.addEventListener("appinstalled", () => resolve(), { once: true });
+          }),
+          new Promise<void>((resolve) => setTimeout(resolve, 30_000)),
+        ]),
+        new Promise<void>((resolve) => setTimeout(resolve, 2_000)),
       ]);
       setIsInstalled(true);
       setDeferredPrompt(null);
