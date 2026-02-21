@@ -40,3 +40,9 @@ export async function getRecipeById(id: string, userId: string) {
     .limit(1);
   return result[0] ?? null;
 }
+
+// Read-only lookup by Clerk ID — does NOT create a user if missing
+export async function getDemoUser(clerkId: string) {
+  const result = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
+  return result[0] ?? null;
+}

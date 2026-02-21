@@ -15,9 +15,11 @@ type RecipeGridProps = {
   activeFolderId: string | null;
   activeDishType: DishType | null;
   mobileFilters: MobileFilters;
+  isDemo?: boolean;
+  linkPrefix?: string;
 };
 
-export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, mobileFilters }: RecipeGridProps) {
+export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, mobileFilters, isDemo = false, linkPrefix }: RecipeGridProps) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [targetFolderId, setTargetFolderId] = useState("");
   const [isMoving, setIsMoving] = useState(false);
@@ -63,8 +65,8 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, m
 
   return (
     <div className="min-w-0 flex-1">
-      {/* Multi-select action bar */}
-      {selected.size > 0 && (
+      {/* Multi-select action bar — hidden in demo mode */}
+      {!isDemo && selected.size > 0 && (
         <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
           <span className="text-sm font-medium text-zinc-700">{selected.size} selected</span>
           <div className="ml-auto flex items-center gap-2">
@@ -111,8 +113,9 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, m
           <RecipeCard
             key={recipe.id}
             recipe={recipe}
-            selected={selected.has(recipe.id)}
-            onSelect={toggleSelect}
+            selected={!isDemo && selected.has(recipe.id)}
+            onSelect={isDemo ? undefined : toggleSelect}
+            linkPrefix={linkPrefix}
           />
         ))}
       </div>

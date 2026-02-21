@@ -17,9 +17,10 @@ type HomeClientProps = {
   recipes: Recipe[];
   folders: Folder[];
   isDemo?: boolean;
+  linkPrefix?: string;
 };
 
-export function HomeClient({ recipes, folders, isDemo = false }: HomeClientProps) {
+export function HomeClient({ recipes, folders, isDemo = false, linkPrefix }: HomeClientProps) {
   const { user } = useUser();
   const [activeFolderId, setActiveFolderId] = useState<string | null>(null);
   const [activeDishType, setActiveDishType] = useState<DishType | null>(null);
@@ -100,6 +101,8 @@ export function HomeClient({ recipes, folders, isDemo = false }: HomeClientProps
           activeFolderId={activeFolderId}
           activeDishType={activeDishType}
           mobileFilters={mobileFilters}
+          isDemo={isDemo}
+          linkPrefix={linkPrefix}
         />
       </div>
 

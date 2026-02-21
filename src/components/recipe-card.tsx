@@ -21,9 +21,10 @@ type RecipeCardProps = {
   recipe: Recipe;
   selected?: boolean;
   onSelect?: (id: string) => void;
+  linkPrefix?: string;
 };
 
-export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
+export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" }: RecipeCardProps) {
   return (
     <div className="group relative">
       {/* Selection checkbox */}
@@ -54,7 +55,7 @@ export function RecipeCard({ recipe, selected, onSelect }: RecipeCardProps) {
       )}
 
       <Link
-        href={`/recipe/${recipe.id}`}
+        href={`${linkPrefix}/${recipe.id}`}
         className={cn(
           "block overflow-hidden rounded-xl border transition-all duration-200",
           "hover:-translate-y-0.5 hover:shadow-md",
