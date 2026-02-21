@@ -13,6 +13,7 @@ export function InstallBanner() {
   const { canPrompt, isIOS, isInstalled, triggerInstall } = useInstallPrompt();
   const [dismissed, setDismissed] = useState(true); // start hidden to avoid flash
   const [iosSheetOpen, setIosSheetOpen] = useState(false);
+  const [isInstalling, setIsInstalling] = useState(false);
 
   useEffect(() => {
     const raw = localStorage.getItem(STORAGE_KEY);
@@ -32,7 +33,9 @@ export function InstallBanner() {
     if (isIOS) {
       setIosSheetOpen(true);
     } else {
+      setIsInstalling(true);
       const outcome = await triggerInstall();
+      setIsInstalling(false);
       setDismissed(true);
       if (outcome === "accepted") {
         toast.success("App installed! Open it from your home screen.");
@@ -61,10 +64,11 @@ export function InstallBanner() {
           {/* Install button */}
           <button
             onClick={handleInstall}
-            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-700"
+            disabled={isInstalling}
+            className="flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-xs font-semibold text-white transition-colors hover:bg-zinc-700 disabled:opacity-60"
           >
             <Download size={13} />
-            {isIOS ? "How to" : "Install"}
+            {isInstalling ? "Installing…" : isIOS ? "How to" : "Install"}
           </button>
 
           {/* Dismiss */}
