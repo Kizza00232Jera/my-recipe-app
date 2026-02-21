@@ -11,6 +11,7 @@ import type { MobileFilters } from "@/components/mobile-filter-bar";
 import { RecipeUploadDialog } from "@/components/recipe-upload-dialog";
 import { BottomNav } from "@/components/bottom-nav";
 import { DemoBanner } from "@/components/demo-banner";
+import { InstallBanner } from "@/components/install-banner";
 import type { Recipe, Folder, DishType } from "@/lib/db/schema";
 
 type HomeClientProps = {
@@ -105,6 +106,9 @@ export function HomeClient({ recipes, folders, isDemo = false, linkPrefix }: Hom
           linkPrefix={linkPrefix}
         />
       </div>
+
+      {/* Install banner — slides up above the bottom nav on mobile */}
+      <InstallBanner />
 
       {/* Mobile bottom nav */}
       <BottomNav onAddRecipe={() => setUploadOpen(true)} isDemo={isDemo} />
