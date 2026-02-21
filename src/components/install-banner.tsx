@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { ChefHat, Download, X } from "lucide-react";
+import { toast } from "sonner";
 import { useInstallPrompt } from "@/hooks/use-install-prompt";
 import { IosInstallSheet } from "@/components/ios-install-sheet";
 
@@ -31,8 +32,11 @@ export function InstallBanner() {
     if (isIOS) {
       setIosSheetOpen(true);
     } else {
-      await triggerInstall();
+      const outcome = await triggerInstall();
       setDismissed(true);
+      if (outcome === "accepted") {
+        toast.success("App installed! Open it from your home screen.");
+      }
     }
   }
 
