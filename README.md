@@ -1,57 +1,87 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# My Recipe App
+
+A personal recipe library to save, organize, and browse your favorite home-cooked meals. Upload a photo, add ingredients and instructions, tag by dish type, and organize recipes into folders — all through a clean, Pinterest-style grid.
+
+**Live demo:** visitors can browse recipes without creating an account.
+
+## Features
+
+- **Recipe grid** — Pinterest-style layout with hero images, dish type badges, star ratings, prep & cook times
+- **Recipe detail** — full page with ingredients, instructions, and metadata
+- **Add & edit recipes** — upload a photo, fill in details, save via server action
+- **Folders** — organize recipes into flat folders, move multiple at once
+- **Multi-select** — select several recipe cards and batch-move them
+- **Search & filter** — filter the grid by folder or dish type
+- **Public demo mode** — portfolio visitors can browse your real recipes read-only at `/demo`
+- **PWA support** — installable on mobile with an install banner prompt
+- **Dark mode** — system-aware theme switching
+
+## Tech Stack
+
+| Concern          | Tool                          |
+| ---------------- | ----------------------------- |
+| Framework        | Next.js 16 (App Router)      |
+| Styling          | Tailwind CSS v4 + shadcn/ui  |
+| Database         | Neon Postgres + Drizzle ORM   |
+| Auth             | Clerk (GitHub, Google, Apple) |
+| File Upload      | Uploadthing                   |
+| Error Monitoring | Sentry                        |
+| Analytics        | PostHog                        |
+| Rate Limiting    | Upstash Redis                  |
+| Deployment       | Vercel                         |
 
 ## Getting Started
 
-First, run the development server:
+### Prerequisites
+
+- Node.js 18+
+- pnpm
+
+### Install & run
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
+pnpm install
 pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Open [http://localhost:3000](http://localhost:3000).
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+### Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Copy `.env.example` (or create `.env.local`) and fill in:
 
-## Learn More
+```
+POSTGRES_URL=
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+UPLOADTHING_SECRET=
+UPLOADTHING_APP_ID=
+SENTRY_DSN=
+NEXT_PUBLIC_POSTHOG_KEY=
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
+DEMO_CLERK_ID=              # your Clerk user ID — enables public demo mode
+```
 
-To learn more about Next.js, take a look at the following resources:
+### Database
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+pnpm db:push      # push Drizzle schema to your database
+pnpm db:studio    # open Drizzle Studio GUI
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Project Structure
 
-## Deploy on Vercel
+```
+src/
+├── app/            # Next.js App Router pages & layouts
+├── components/     # React components (ui/ for shadcn)
+├── hooks/          # Custom React hooks
+├── lib/db/         # Drizzle client & schema
+├── server/actions/ # Server actions (create, update, delete)
+└── proxy.ts        # Clerk auth middleware
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## License
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-
-# My Recipe App
-
-## Todo
-
-- [x] 1. Deploy to Vercel (connect repo, confirm CI works)
-- [x] 2. Scaffold basic UI with mock recipe data (grid layout)
-- [x] 3. Tidy up build process (ESLint, Prettier, path aliases)
-- [x] 4. Set up database (Neon Postgres + Drizzle ORM)
-- [x] 5. Attach database to UI (replace mock data with real queries)
-- [x] 6. Add authentication (Clerk — GitHub + Google + Apple)
-- [x] 7. Add recipe upload (Uploadthing + server action to save)
-- [x] 8. Taint server-only modules (server-only package)
-- [x] 9. Use next/image component (replace img tags)
-- [x] 10. Error management (Sentry)
-- [x] 11. Recipe page routing (parallel + intercepting routes)
-- [x] 12. Polish upload button UI
-- [x] 13. Toaster notifications (shadcn/ui toast)
-- [x] 14. Analytics (PostHog)
-- [x] 15. Delete recipe (server action + confirm dialog)
-- [x] 16. Rate limiting (Upstash Redis)
+Private project — not open for contributions.
