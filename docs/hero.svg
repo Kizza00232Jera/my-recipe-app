@@ -1,0 +1,295 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 400" fill="none">
+  <defs>
+    <!-- Background gradient - warm white like the site -->
+    <linearGradient id="bg" x1="0" y1="0" x2="1200" y2="400" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#fafafa"/>
+      <stop offset="100%" stop-color="#f4f4f5"/>
+    </linearGradient>
+
+    <!-- Accent gradients matching dish type badge colors -->
+    <linearGradient id="emerald" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#6ee7b7"/>
+      <stop offset="100%" stop-color="#34d399"/>
+    </linearGradient>
+    <linearGradient id="blue" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#93c5fd"/>
+      <stop offset="100%" stop-color="#60a5fa"/>
+    </linearGradient>
+    <linearGradient id="yellow" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fde68a"/>
+      <stop offset="100%" stop-color="#fbbf24"/>
+    </linearGradient>
+    <linearGradient id="purple" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#c4b5fd"/>
+      <stop offset="100%" stop-color="#a78bfa"/>
+    </linearGradient>
+    <linearGradient id="orange" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0%" stop-color="#fdba74"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+
+    <!-- Card shadow filter -->
+    <filter id="shadow" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="2" stdDeviation="6" flood-color="#18181b" flood-opacity="0.08"/>
+    </filter>
+    <filter id="shadow-sm" x="-4%" y="-4%" width="108%" height="116%">
+      <feDropShadow dx="0" dy="1" stdDeviation="3" flood-color="#18181b" flood-opacity="0.06"/>
+    </filter>
+
+    <!-- Subtle dot pattern like Pinterest grid -->
+    <pattern id="dots" x="0" y="0" width="32" height="32" patternUnits="userSpaceOnUse">
+      <circle cx="16" cy="16" r="1" fill="#d4d4d8" opacity="0.4"/>
+    </pattern>
+  </defs>
+
+  <!-- Background -->
+  <rect width="1200" height="400" fill="url(#bg)"/>
+  <rect width="1200" height="400" fill="url(#dots)"/>
+
+  <!-- Subtle border line at bottom -->
+  <line x1="0" y1="399" x2="1200" y2="399" stroke="#e4e4e7" stroke-width="1"/>
+
+  <!-- ============ LEFT SIDE: Recipe Card Grid ============ -->
+
+  <!-- Card 1 - top left -->
+  <g filter="url(#shadow)">
+    <rect x="48" y="40" width="150" height="190" rx="10" fill="white" stroke="#e4e4e7" stroke-width="1"/>
+    <!-- Image placeholder -->
+    <rect x="48" y="40" width="150" height="100" rx="10" fill="url(#emerald)" opacity="0.3"/>
+    <rect x="48" y="40" width="150" height="100" rx="10" ry="0" fill="url(#emerald)" opacity="0.15"/>
+    <path d="M 48 50 Q 48 40 58 40 L 188 40 Q 198 40 198 50 L 198 140 L 48 140 Z" fill="url(#emerald)" opacity="0.25"/>
+    <!-- Plate icon -->
+    <circle cx="123" cy="85" r="22" stroke="#059669" stroke-width="1.5" fill="none" opacity="0.5"/>
+    <circle cx="123" cy="85" r="14" stroke="#059669" stroke-width="1" fill="none" opacity="0.3"/>
+    <!-- Text lines -->
+    <rect x="58" y="150" width="90" height="8" rx="4" fill="#27272a"/>
+    <rect x="58" y="166" width="60" height="6" rx="3" fill="#a1a1aa"/>
+    <!-- Badge -->
+    <rect x="58" y="183" width="44" height="16" rx="8" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.5"/>
+    <text x="80" y="194" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#059669" text-anchor="middle" font-weight="500">lunch</text>
+    <!-- Stars -->
+    <g transform="translate(120, 183)" opacity="0.7">
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(7,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(14,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(21,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#e4e4e7" transform="translate(28,0) scale(0.7)"/>
+    </g>
+  </g>
+
+  <!-- Card 2 - top middle -->
+  <g filter="url(#shadow)">
+    <rect x="212" y="28" width="150" height="210" rx="10" fill="white" stroke="#e4e4e7" stroke-width="1"/>
+    <path d="M 212 38 Q 212 28 222 28 L 352 28 Q 362 28 362 38 L 362 148 L 212 148 Z" fill="url(#blue)" opacity="0.25"/>
+    <!-- Fork & knife icon -->
+    <line x1="275" y1="70" x2="275" y2="110" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" opacity="0.5"/>
+    <path d="M 290 70 L 290 85 Q 290 95 285 95 L 285 110" stroke="#3b82f6" stroke-width="1.5" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <line x1="286" y1="70" x2="286" y2="82" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+    <line x1="294" y1="70" x2="294" y2="82" stroke="#3b82f6" stroke-width="1" stroke-linecap="round" opacity="0.4"/>
+    <!-- Text -->
+    <rect x="222" y="158" width="100" height="8" rx="4" fill="#27272a"/>
+    <rect x="222" y="174" width="70" height="6" rx="3" fill="#a1a1aa"/>
+    <!-- Badge -->
+    <rect x="222" y="192" width="48" height="16" rx="8" fill="#dbeafe" stroke="#bfdbfe" stroke-width="0.5"/>
+    <text x="246" y="203" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#2563eb" text-anchor="middle" font-weight="500">dinner</text>
+    <g transform="translate(288, 192)" opacity="0.7">
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(7,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(14,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(21,0) scale(0.7)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(28,0) scale(0.7)"/>
+    </g>
+  </g>
+
+  <!-- Card 3 - bottom left -->
+  <g filter="url(#shadow)">
+    <rect x="80" y="248" width="150" height="130" rx="10" fill="white" stroke="#e4e4e7" stroke-width="1"/>
+    <path d="M 80 258 Q 80 248 90 248 L 220 248 Q 230 248 230 258 L 230 330 L 80 330 Z" fill="url(#yellow)" opacity="0.25"/>
+    <!-- Sun/breakfast icon -->
+    <circle cx="155" cy="285" r="14" stroke="#d97706" stroke-width="1.5" fill="none" opacity="0.4"/>
+    <g opacity="0.3" stroke="#d97706" stroke-width="1.5" stroke-linecap="round">
+      <line x1="155" y1="265" x2="155" y2="260"/>
+      <line x1="155" y1="305" x2="155" y2="310"/>
+      <line x1="135" y1="285" x2="130" y2="285"/>
+      <line x1="175" y1="285" x2="180" y2="285"/>
+    </g>
+    <!-- Text -->
+    <rect x="90" y="340" width="80" height="8" rx="4" fill="#27272a"/>
+    <rect x="90" y="356" width="55" height="6" rx="3" fill="#a1a1aa"/>
+    <!-- Badge -->
+    <rect x="90" y="340" width="58" height="16" rx="8" fill="#fef3c7" stroke="#fde68a" stroke-width="0.5"/>
+    <text x="119" y="351" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#d97706" text-anchor="middle" font-weight="500">breakfast</text>
+  </g>
+
+  <!-- Card 4 - bottom middle-right -->
+  <g filter="url(#shadow-sm)">
+    <rect x="248" y="256" width="140" height="120" rx="10" fill="white" stroke="#e4e4e7" stroke-width="1"/>
+    <path d="M 248 266 Q 248 256 258 256 L 378 256 Q 388 256 388 266 L 388 330 L 248 330 Z" fill="url(#purple)" opacity="0.2"/>
+    <!-- Glass icon -->
+    <path d="M 310 278 L 326 278 L 322 308 Q 322 312 318 312 Q 314 312 314 308 Z" stroke="#7c3aed" stroke-width="1.5" fill="none" opacity="0.4"/>
+    <line x1="318" y1="312" x2="318" y2="322" stroke="#7c3aed" stroke-width="1.5" opacity="0.3"/>
+    <line x1="310" y1="322" x2="326" y2="322" stroke="#7c3aed" stroke-width="1.5" stroke-linecap="round" opacity="0.3"/>
+    <!-- Text -->
+    <rect x="258" y="340" width="75" height="7" rx="3.5" fill="#27272a"/>
+    <rect x="258" y="353" width="50" height="5" rx="2.5" fill="#a1a1aa"/>
+  </g>
+
+  <!-- ============ CENTER: App Title & Description ============ -->
+
+  <!-- App icon - chef hat -->
+  <g transform="translate(600, 95)">
+    <!-- Hat top -->
+    <circle cx="0" cy="-16" r="28" fill="#18181b"/>
+    <circle cx="-18" cy="-8" r="18" fill="#18181b"/>
+    <circle cx="18" cy="-8" r="18" fill="#18181b"/>
+    <!-- Hat band -->
+    <rect x="-22" y="2" width="44" height="30" rx="4" fill="#18181b"/>
+    <!-- Hat highlight line -->
+    <line x1="-16" y1="8" x2="16" y2="8" stroke="#fafafa" stroke-width="1.5" stroke-linecap="round" opacity="0.2"/>
+  </g>
+
+  <!-- Title -->
+  <text x="600" y="172" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="40" font-weight="700" fill="#18181b" text-anchor="middle" letter-spacing="-1">My Recipes</text>
+
+  <!-- Subtitle -->
+  <text x="600" y="202" font-family="system-ui, -apple-system, 'Segoe UI', sans-serif" font-size="16" fill="#71717a" text-anchor="middle" letter-spacing="0.2">Your personal recipe library — save, organize, and cook.</text>
+
+  <!-- Divider -->
+  <line x1="520" y1="224" x2="680" y2="224" stroke="#e4e4e7" stroke-width="1"/>
+
+  <!-- Tech badges row -->
+  <g transform="translate(600, 252)">
+    <!-- Next.js -->
+    <rect x="-220" y="0" width="68" height="22" rx="11" fill="#18181b"/>
+    <text x="-186" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#fafafa" text-anchor="middle" font-weight="500">Next.js</text>
+
+    <!-- Tailwind -->
+    <rect x="-140" y="0" width="72" height="22" rx="11" fill="#0ea5e9" opacity="0.12"/>
+    <rect x="-140" y="0" width="72" height="22" rx="11" fill="none" stroke="#0ea5e9" stroke-width="0.8" opacity="0.4"/>
+    <text x="-104" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#0284c7" text-anchor="middle" font-weight="500">Tailwind</text>
+
+    <!-- Clerk -->
+    <rect x="-56" y="0" width="52" height="22" rx="11" fill="#6c47ff" opacity="0.12"/>
+    <rect x="-56" y="0" width="52" height="22" rx="11" fill="none" stroke="#6c47ff" stroke-width="0.8" opacity="0.4"/>
+    <text x="-30" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#6c47ff" text-anchor="middle" font-weight="500">Clerk</text>
+
+    <!-- Drizzle -->
+    <rect x="8" y="0" width="60" height="22" rx="11" fill="#c5f74f" opacity="0.15"/>
+    <rect x="8" y="0" width="60" height="22" rx="11" fill="none" stroke="#84cc16" stroke-width="0.8" opacity="0.5"/>
+    <text x="38" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#65a30d" text-anchor="middle" font-weight="500">Drizzle</text>
+
+    <!-- Vercel -->
+    <rect x="80" y="0" width="60" height="22" rx="11" fill="#18181b" opacity="0.06"/>
+    <rect x="80" y="0" width="60" height="22" rx="11" fill="none" stroke="#18181b" stroke-width="0.8" opacity="0.2"/>
+    <text x="110" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#52525b" text-anchor="middle" font-weight="500">Vercel</text>
+
+    <!-- Sentry -->
+    <rect x="152" y="0" width="58" height="22" rx="11" fill="#362d59" opacity="0.1"/>
+    <rect x="152" y="0" width="58" height="22" rx="11" fill="none" stroke="#362d59" stroke-width="0.8" opacity="0.3"/>
+    <text x="181" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#362d59" text-anchor="middle" font-weight="500">Sentry</text>
+  </g>
+
+  <!-- Second badge row -->
+  <g transform="translate(600, 282)">
+    <!-- Uploadthing -->
+    <rect x="-148" y="0" width="84" height="22" rx="11" fill="#ef4444" opacity="0.08"/>
+    <rect x="-148" y="0" width="84" height="22" rx="11" fill="none" stroke="#ef4444" stroke-width="0.8" opacity="0.3"/>
+    <text x="-106" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#dc2626" text-anchor="middle" font-weight="500">Uploadthing</text>
+
+    <!-- Upstash -->
+    <rect x="-52" y="0" width="64" height="22" rx="11" fill="#00e9a3" opacity="0.12"/>
+    <rect x="-52" y="0" width="64" height="22" rx="11" fill="none" stroke="#00e9a3" stroke-width="0.8" opacity="0.4"/>
+    <text x="-20" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#059669" text-anchor="middle" font-weight="500">Upstash</text>
+
+    <!-- PostHog -->
+    <rect x="24" y="0" width="64" height="22" rx="11" fill="#f9a825" opacity="0.12"/>
+    <rect x="24" y="0" width="64" height="22" rx="11" fill="none" stroke="#f9a825" stroke-width="0.8" opacity="0.4"/>
+    <text x="56" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#d97706" text-anchor="middle" font-weight="500">PostHog</text>
+
+    <!-- PWA -->
+    <rect x="100" y="0" width="46" height="22" rx="11" fill="#7c3aed" opacity="0.1"/>
+    <rect x="100" y="0" width="46" height="22" rx="11" fill="none" stroke="#7c3aed" stroke-width="0.8" opacity="0.3"/>
+    <text x="123" y="15" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#7c3aed" text-anchor="middle" font-weight="500">PWA</text>
+  </g>
+
+  <!-- ============ RIGHT SIDE: Recipe Detail Preview ============ -->
+
+  <!-- Recipe detail card -->
+  <g filter="url(#shadow)">
+    <rect x="790" y="32" width="360" height="336" rx="12" fill="white" stroke="#e4e4e7" stroke-width="1"/>
+
+    <!-- Hero image area -->
+    <path d="M 790 44 Q 790 32 802 32 L 1138 32 Q 1150 32 1150 44 L 1150 180 L 790 180 Z" fill="url(#orange)" opacity="0.2"/>
+
+    <!-- Plate/food icon in image area -->
+    <circle cx="970" cy="106" r="36" stroke="#ea580c" stroke-width="1.5" fill="none" opacity="0.3"/>
+    <circle cx="970" cy="106" r="24" stroke="#ea580c" stroke-width="1" fill="none" opacity="0.2"/>
+    <g opacity="0.25" stroke="#ea580c" stroke-width="1.2" stroke-linecap="round">
+      <line x1="958" y1="98" x2="958" y2="114"/>
+      <line x1="982" y1="94" x2="982" y2="118"/>
+      <path d="M 976 94 L 976 102 Q 976 107 974 107 L 974 118" fill="none"/>
+    </g>
+
+    <!-- Recipe title -->
+    <rect x="812" y="196" width="180" height="12" rx="6" fill="#18181b"/>
+
+    <!-- Badges row -->
+    <rect x="812" y="220" width="48" height="16" rx="8" fill="#ffedd5" stroke="#fed7aa" stroke-width="0.5"/>
+    <text x="836" y="231" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#ea580c" text-anchor="middle" font-weight="500">snack</text>
+    <rect x="866" y="220" width="46" height="16" rx="8" fill="#d1fae5" stroke="#a7f3d0" stroke-width="0.5"/>
+    <text x="889" y="231" font-family="system-ui, -apple-system, sans-serif" font-size="8" fill="#059669" text-anchor="middle" font-weight="500">vegan</text>
+
+    <!-- Stars -->
+    <g transform="translate(924, 220)" opacity="0.8">
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="scale(0.9)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(9,0) scale(0.9)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(18,0) scale(0.9)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#fbbf24" transform="translate(27,0) scale(0.9)"/>
+      <polygon points="4,0 5.2,3 8,3 5.8,5 6.6,8 4,6.2 1.4,8 2.2,5 0,3 2.8,3" fill="#e4e4e7" transform="translate(36,0) scale(0.9)"/>
+    </g>
+
+    <!-- Time info -->
+    <g transform="translate(812, 248)" opacity="0.5">
+      <!-- Clock icon -->
+      <circle cx="7" cy="7" r="6" stroke="#71717a" stroke-width="1.2" fill="none"/>
+      <line x1="7" y1="4" x2="7" y2="7" stroke="#71717a" stroke-width="1.2" stroke-linecap="round"/>
+      <line x1="7" y1="7" x2="9" y2="9" stroke="#71717a" stroke-width="1.2" stroke-linecap="round"/>
+      <text x="18" y="11" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#71717a">25 min</text>
+    </g>
+    <g transform="translate(880, 248)" opacity="0.5">
+      <!-- Utensils icon -->
+      <line x1="5" y1="2" x2="5" y2="14" stroke="#71717a" stroke-width="1.2" stroke-linecap="round"/>
+      <path d="M 10 2 L 10 7 Q 10 10 8 10 L 8 14" stroke="#71717a" stroke-width="1.2" stroke-linecap="round" fill="none"/>
+      <text x="18" y="11" font-family="system-ui, -apple-system, sans-serif" font-size="10" fill="#71717a">15 min</text>
+    </g>
+
+    <!-- Ingredients section -->
+    <text x="812" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#18181b" font-weight="600">Ingredients</text>
+    <g opacity="0.4">
+      <circle cx="818" cy="300" r="2" fill="#a1a1aa"/>
+      <rect x="826" y="296" width="120" height="7" rx="3.5" fill="#a1a1aa"/>
+      <circle cx="818" cy="314" r="2" fill="#a1a1aa"/>
+      <rect x="826" y="310" width="100" height="7" rx="3.5" fill="#a1a1aa"/>
+      <circle cx="818" cy="328" r="2" fill="#a1a1aa"/>
+      <rect x="826" y="324" width="140" height="7" rx="3.5" fill="#a1a1aa"/>
+      <circle cx="818" cy="342" r="2" fill="#a1a1aa"/>
+      <rect x="826" y="338" width="90" height="7" rx="3.5" fill="#a1a1aa"/>
+    </g>
+
+    <!-- Instructions section (right column) -->
+    <text x="990" y="285" font-family="system-ui, -apple-system, sans-serif" font-size="11" fill="#18181b" font-weight="600">Instructions</text>
+    <g opacity="0.3">
+      <rect x="990" y="296" width="140" height="6" rx="3" fill="#a1a1aa"/>
+      <rect x="990" y="308" width="130" height="6" rx="3" fill="#a1a1aa"/>
+      <rect x="990" y="320" width="145" height="6" rx="3" fill="#a1a1aa"/>
+      <rect x="990" y="332" width="120" height="6" rx="3" fill="#a1a1aa"/>
+      <rect x="990" y="344" width="135" height="6" rx="3" fill="#a1a1aa"/>
+    </g>
+  </g>
+
+  <!-- Decorative floating elements -->
+  <circle cx="440" cy="350" r="4" fill="#34d399" opacity="0.15"/>
+  <circle cx="760" cy="380" r="3" fill="#60a5fa" opacity="0.15"/>
+  <circle cx="480" cy="50" r="5" fill="#a78bfa" opacity="0.1"/>
+  <circle cx="720" cy="30" r="3" fill="#fbbf24" opacity="0.15"/>
+</svg>
