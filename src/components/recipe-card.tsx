@@ -115,7 +115,7 @@ export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" 
           </div>
 
           <div className="space-y-2 p-3">
-            <h3 className="line-clamp-2 text-sm leading-tight font-semibold text-zinc-900">
+            <h3 className="line-clamp-2 min-h-[2.5em] text-sm leading-tight font-semibold text-zinc-900">
               {recipe.name}
             </h3>
 
