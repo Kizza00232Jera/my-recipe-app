@@ -16,17 +16,17 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
   const router = useRouter();
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-200 bg-white">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-40 border-t border-zinc-100 bg-white/95 backdrop-blur">
       <div className="flex items-center justify-around px-2 pb-safe">
         {/* Home */}
         <button
           onClick={() => router.push("/")}
           className={cn(
-            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors",
-            pathname === "/" ? "text-zinc-900" : "text-zinc-400"
+            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-semibold transition-colors",
+            pathname === "/" ? "text-primary" : "text-zinc-400"
           )}
         >
-          <Home size={22} />
+          <Home size={22} className={cn(pathname === "/" && "fill-brand-soft")} />
           <span>Home</span>
         </button>
 
@@ -34,8 +34,8 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
         <button
           onClick={() => router.push("/folders")}
           className={cn(
-            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium transition-colors",
-            pathname === "/folders" ? "text-zinc-900" : "text-zinc-400"
+            "flex flex-col items-center gap-1 px-3 py-3 text-xs font-semibold transition-colors",
+            pathname === "/folders" ? "text-primary" : "text-zinc-400"
           )}
         >
           <FolderOpen size={22} />
@@ -43,11 +43,11 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
         </button>
 
         {/* Add Recipe / Sign in — prominent center button */}
-        <div className="flex flex-col items-center -mt-5">
+        <div className="-mt-5 flex flex-col items-center">
           {isDemo ? (
             <Link
               href="/sign-in"
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:scale-95 transition-transform"
+              className="bg-primary text-primary-foreground flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-green-600/30 transition-transform active:scale-95"
               aria-label="Sign in"
             >
               <LogIn size={24} />
@@ -55,7 +55,7 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
           ) : (
             <button
               onClick={onAddRecipe}
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-zinc-900 text-white shadow-lg active:scale-95 transition-transform"
+              className="text-primary-foreground flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-emerald-500 to-green-600 shadow-lg shadow-green-600/30 transition-transform active:scale-95"
               aria-label="Add recipe"
             >
               <Plus size={26} />
@@ -66,7 +66,7 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
         {/* List (coming soon) */}
         <button
           onClick={() => toast("List view coming soon")}
-          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium text-zinc-400 transition-colors"
+          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-semibold text-zinc-400 transition-colors"
         >
           <List size={22} />
           <span>List</span>
@@ -75,7 +75,7 @@ export function BottomNav({ onAddRecipe, isDemo = false }: BottomNavProps) {
         {/* Settings */}
         <button
           onClick={() => toast("Settings coming soon")}
-          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-medium text-zinc-400 transition-colors"
+          className="flex flex-col items-center gap-1 px-3 py-3 text-xs font-semibold text-zinc-400 transition-colors"
         >
           <Settings size={22} />
           <span>Settings</span>

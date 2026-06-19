@@ -16,6 +16,14 @@ export async function getOrCreateUser(clerkId: string, email: string) {
   return newUser;
 }
 
+// Fast lookup by Clerk ID — a single indexed SELECT, no Clerk API round-trip.
+// Use this on hot paths (page loads); only fall back to currentUser() +
+// getOrCreateUser when the row doesn't exist yet (first ever login).
+export async function getUserByClerkId(clerkId: string) {
+  const result = await db.select().from(users).where(eq(users.clerkId, clerkId)).limit(1);
+  return result[0] ?? null;
+}
+
 export async function getRecipes(userId: string) {
   return db
     .select()

@@ -4,7 +4,7 @@ import { createUploadthing, type FileRouter } from "uploadthing/next";
 const f = createUploadthing();
 
 export const ourFileRouter = {
-  recipeImage: f({ image: { maxFileSize: "8MB", maxFileCount: 1 } })
+  recipeImage: f({ image: { maxFileSize: "8MB", maxFileCount: 6 } })
     .middleware(async () => {
       const { userId } = await auth();
       if (!userId) throw new Error("Unauthorized");

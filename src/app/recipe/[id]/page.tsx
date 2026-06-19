@@ -1,13 +1,15 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { notFound } from "next/navigation";
-import { getFolders, getOrCreateUser, getRecipeById } from "@/lib/db/queries";
+import { getFolders, getOrCreateUser, getRecipeById, getUserByClerkId } from "@/lib/db/queries";
 import { RecipeDetail } from "@/components/recipe-detail";
 import { DeleteRecipeButton } from "@/components/delete-recipe-button";
 import { EditRecipeButton } from "@/components/edit-recipe-button";
+import { EnhanceWithAiButton } from "@/components/enhance-with-ai-button";
 import { DemoBanner } from "@/components/demo-banner";
 import { DEMO_RECIPES } from "@/lib/demo-data";
+import { isSparse } from "@/lib/recipe-utils";
 
 export default async function RecipePage({
   params,
@@ -16,10 +18,10 @@ export default async function RecipePage({
 }) {
   const { id } = await params;
 
-  const clerkUser = await currentUser();
+  const { userId } = await auth();
 
   // Guest / demo path — serve from static demo data, no DB call
-  if (!clerkUser) {
+  if (!userId) {
     const recipe = DEMO_RECIPES.find((r) => r.id === id) ?? null;
     if (!recipe) notFound();
 
@@ -40,11 +42,15 @@ export default async function RecipePage({
     );
   }
 
-  // Authenticated path — fetch from DB as before
-  const dbUser = await getOrCreateUser(
-    clerkUser.id,
-    clerkUser.emailAddresses[0]?.emailAddress ?? ""
-  );
+  // Authenticated path — fast user lookup, no Clerk API round-trip
+  let dbUser = await getUserByClerkId(userId);
+  if (!dbUser) {
+    const clerkUser = await currentUser();
+    dbUser = await getOrCreateUser(
+      clerkUser!.id,
+      clerkUser!.emailAddresses[0]?.emailAddress ?? ""
+    );
+  }
 
   const [recipe, folders] = await Promise.all([
     getRecipeById(id, dbUser.id),
@@ -62,7 +68,14 @@ export default async function RecipePage({
           <ArrowLeft size={16} />
           Back to recipes
         </Link>
-        <RecipeDetail recipe={recipe} />
+        <RecipeDetail
+          recipe={recipe}
+          enhanceSlot={
+            isSparse(recipe) ? (
+              <EnhanceWithAiButton recipe={recipe} folders={folders} />
+            ) : undefined
+          }
+        />
         <div className="mt-8 flex items-center gap-3 border-t border-zinc-200 pt-6">
           <EditRecipeButton recipe={recipe} folders={folders} />
           <DeleteRecipeButton recipeId={recipe.id} />

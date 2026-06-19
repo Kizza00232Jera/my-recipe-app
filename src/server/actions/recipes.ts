@@ -2,40 +2,57 @@
 
 import * as Sentry from "@sentry/nextjs";
 import { revalidatePath } from "next/cache";
-import { currentUser } from "@clerk/nextjs/server";
+import { auth, currentUser } from "@clerk/nextjs/server";
 import { createId } from "@paralleldrive/cuid2";
 import { and, eq, inArray, sql } from "drizzle-orm";
 import { db } from "@/lib/db";
 import { recipes } from "@/lib/db/schema";
-import { getOrCreateUser } from "@/lib/db/queries";
+import { getOrCreateUser, getUserByClerkId } from "@/lib/db/queries";
 import { uploadRatelimit, deleteRatelimit } from "@/lib/ratelimit";
-import type { DishType } from "@/lib/db/schema";
+import type { DishType, Difficulty, Ingredient, Step } from "@/lib/db/schema";
 
-type CreateRecipeInput = {
+// Resolve the current user with a single indexed SELECT (no Clerk API call).
+// Only falls back to currentUser() on first-ever login to create the row.
+async function requireUser() {
+  const { userId } = await auth();
+  if (!userId) throw new Error("Unauthorized");
+  let dbUser = await getUserByClerkId(userId);
+  if (!dbUser) {
+    const cu = await currentUser();
+    dbUser = await getOrCreateUser(userId, cu?.emailAddresses[0]?.emailAddress ?? "");
+  }
+  return { clerkId: userId, dbUser };
+}
+
+type RecipeFields = {
   name: string;
   imageUrl: string;
+  imageUrls?: string[];
   dishTypes: DishType[];
   tags: string[];
   prepTime: number;
   cookTime: number;
-  ingredients: { amount: string; unit: string; name: string }[];
+  ingredients: Ingredient[];
   instructions: string;
+  steps?: Step[];
   rating: number;
+  description?: string;
+  servings?: number | null;
+  difficulty?: Difficulty | null;
+  cuisine?: string;
+  calories?: number | null;
+  source?: string;
   folderIds?: string[];
 };
 
+type CreateRecipeInput = RecipeFields;
+
 export async function createRecipe(input: CreateRecipeInput) {
   try {
-    const clerkUser = await currentUser();
-    if (!clerkUser) throw new Error("Unauthorized");
+    const { clerkId, dbUser } = await requireUser();
 
-    const { success } = await uploadRatelimit.limit(clerkUser.id);
+    const { success } = await uploadRatelimit.limit(clerkId);
     if (!success) throw new Error("Too many uploads. Please try again later.");
-
-    const dbUser = await getOrCreateUser(
-      clerkUser.id,
-      clerkUser.emailAddresses[0]?.emailAddress ?? ""
-    );
 
     await db.insert(recipes).values({
       id: createId(),
@@ -53,16 +70,10 @@ export async function createRecipe(input: CreateRecipeInput) {
 
 export async function deleteRecipe(id: string) {
   try {
-    const clerkUser = await currentUser();
-    if (!clerkUser) throw new Error("Unauthorized");
+    const { clerkId, dbUser } = await requireUser();
 
-    const { success } = await deleteRatelimit.limit(clerkUser.id);
+    const { success } = await deleteRatelimit.limit(clerkId);
     if (!success) throw new Error("Too many deletes. Please try again later.");
-
-    const dbUser = await getOrCreateUser(
-      clerkUser.id,
-      clerkUser.emailAddresses[0]?.emailAddress ?? ""
-    );
 
     await db
       .delete(recipes)
@@ -75,32 +86,14 @@ export async function deleteRecipe(id: string) {
   }
 }
 
-type UpdateRecipeInput = {
-  id: string;
-  name: string;
-  imageUrl: string;
-  dishTypes: DishType[];
-  tags: string[];
-  prepTime: number;
-  cookTime: number;
-  ingredients: { amount: string; unit: string; name: string }[];
-  instructions: string;
-  rating: number;
-  folderIds?: string[];
-};
+type UpdateRecipeInput = RecipeFields & { id: string };
 
 export async function updateRecipe(input: UpdateRecipeInput) {
   try {
-    const clerkUser = await currentUser();
-    if (!clerkUser) throw new Error("Unauthorized");
+    const { clerkId, dbUser } = await requireUser();
 
-    const { success } = await uploadRatelimit.limit(clerkUser.id);
+    const { success } = await uploadRatelimit.limit(clerkId);
     if (!success) throw new Error("Too many requests. Please try again later.");
-
-    const dbUser = await getOrCreateUser(
-      clerkUser.id,
-      clerkUser.emailAddresses[0]?.emailAddress ?? ""
-    );
 
     const { id, ...data } = input;
 
@@ -119,13 +112,7 @@ export async function updateRecipe(input: UpdateRecipeInput) {
 
 export async function addRecipesToFolder(ids: string[], folderId: string) {
   try {
-    const clerkUser = await currentUser();
-    if (!clerkUser) throw new Error("Unauthorized");
-
-    const dbUser = await getOrCreateUser(
-      clerkUser.id,
-      clerkUser.emailAddresses[0]?.emailAddress ?? ""
-    );
+    const { dbUser } = await requireUser();
 
     // Append folderId to folderIds array, skipping if already present
     await db

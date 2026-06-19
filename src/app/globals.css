@@ -8,8 +8,16 @@
     --card-foreground: oklch(0.145 0 0);
     --popover: oklch(1 0 0);
     --popover-foreground: oklch(0.145 0 0);
-    --primary: oklch(0.205 0 0);
+    /* Foodie palette — green primary */
+    --primary: oklch(0.63 0.17 150);
     --primary-foreground: oklch(0.985 0 0);
+    --brand: oklch(0.63 0.17 150);
+    --brand-foreground: oklch(0.985 0 0);
+    --brand-soft: oklch(0.95 0.045 152);
+    --brand-strong: oklch(0.52 0.15 150);
+    --accent-violet: oklch(0.55 0.22 295);
+    --accent-violet-soft: oklch(0.95 0.04 300);
+    --accent-amber: oklch(0.7 0.16 70);
     --secondary: oklch(0.97 0 0);
     --secondary-foreground: oklch(0.205 0 0);
     --muted: oklch(0.97 0 0);
@@ -20,8 +28,8 @@
     --destructive-foreground: oklch(0.985 0 0);
     --border: oklch(0.922 0 0);
     --input: oklch(0.922 0 0);
-    --ring: oklch(0.708 0 0);
-    --radius: 0.625rem;
+    --ring: oklch(0.63 0.17 150);
+    --radius: 0.875rem;
   }
 
   .dark {
@@ -67,8 +75,16 @@
   --color-border: var(--border);
   --color-input: var(--input);
   --color-ring: var(--ring);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --color-brand: var(--brand);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-brand-strong: var(--brand-strong);
+  --color-violet-accent: var(--accent-violet);
+  --color-violet-soft: var(--accent-violet-soft);
+  --color-amber-accent: var(--accent-amber);
+  --font-sans: var(--font-dm-sans), system-ui, sans-serif;
+  --font-display: var(--font-space-grotesk), system-ui, sans-serif;
+  --font-mono: var(--font-space-grotesk);
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
   --radius-lg: var(--radius);
@@ -82,4 +98,18 @@
 body {
   background-color: var(--background);
   color: var(--foreground);
+  font-family: var(--font-dm-sans), system-ui, sans-serif;
+}
+
+.font-display {
+  font-family: var(--font-space-grotesk), system-ui, sans-serif;
+}
+
+/* Prevent iOS auto-zoom when focusing inputs (font must be >= 16px) */
+@supports (-webkit-touch-callout: none) {
+  input,
+  textarea,
+  select {
+    font-size: 16px;
+  }
 }

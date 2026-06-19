@@ -81,7 +81,7 @@ export function FolderSidebar({
           className={cn(
             "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
             activeFolderId === null && activeDishType === null
-              ? "bg-zinc-900 text-white"
+              ? "bg-brand-soft text-brand-strong"
               : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
           )}
         >
@@ -91,7 +91,7 @@ export function FolderSidebar({
             className={cn(
               "ml-auto text-xs",
               activeFolderId === null && activeDishType === null
-                ? "text-zinc-300"
+                ? "text-brand-strong/60"
                 : "text-zinc-400"
             )}
           >
@@ -114,12 +114,12 @@ export function FolderSidebar({
                   className={cn(
                     "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                     isActive
-                      ? "bg-zinc-900 text-white"
+                      ? "bg-brand-soft text-brand-strong"
                       : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
                   )}
                 >
                   <span className="flex-1 truncate text-left">{DISH_TYPE_LABELS[type]}</span>
-                  <span className={cn("text-xs", isActive ? "text-zinc-300" : "text-zinc-400")}>
+                  <span className={cn("text-xs", isActive ? "text-brand-strong/60" : "text-zinc-400")}>
                     {countByType(type)}
                   </span>
                 </button>
@@ -144,13 +144,13 @@ export function FolderSidebar({
               className={cn(
                 "flex w-full items-center gap-2.5 rounded-lg px-3 py-2 text-sm font-medium transition-colors",
                 isActive
-                  ? "bg-zinc-900 text-white"
+                  ? "bg-brand-soft text-brand-strong"
                   : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900"
               )}
             >
               {isActive ? <FolderOpen size={15} /> : <Folder size={15} />}
               <span className="flex-1 truncate text-left">{folder.name}</span>
-              <span className={cn("text-xs", isActive ? "text-zinc-300" : "text-zinc-400")}>
+              <span className={cn("text-xs", isActive ? "text-brand-strong/60" : "text-zinc-400")}>
                 {countInFolder(folder.id)}
               </span>
             </button>

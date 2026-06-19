@@ -92,19 +92,40 @@ src/
 {
   id: string (cuid)
   userId: string              // from Clerk
-  folderId: string | null     // nullable — recipe may not be in a folder
+  folderIds: string[]         // a recipe can live in multiple folders
   name: string
-  imageUrl: string            // from Uploadthing
-  dishType: enum              // 'main' | 'dessert' | 'pizza' | 'grill' | 'soup' | 'salad' | 'breakfast' | 'other'
+  imageUrl: string            // cover, from Uploadthing
+  imageUrls: string[]         // extra gallery photos (optional)
+  dishTypes: DishType[]       // 'lunch'|'dinner'|'breakfast'|'side'|'appetizer'|'snack'|'sauce'|'drinks'|'vegan'
   tags: string[]              // freeform e.g. ['chicken', 'spicy', 'quick']
-  prepTime: number            // in minutes
-  cookTime: number            // in minutes
-  ingredients: json           // { amount: string, unit: string, name: string }[]
-  instructions: string
-  rating: number              // 1–5
+  prepTime: number            // minutes
+  cookTime: number            // minutes
+  ingredients: json           // { amount, unit, name, group? }[]
+  instructions: string        // LEGACY fallback — kept; new recipes use steps[]
+  steps: json                 // { text: string, imageUrl?: string }[]
+  rating: number              // 0–5
+  // Foodie-redesign fields (all optional / defaulted — old recipes stay valid):
+  description: string         // one-line hook
+  servings: number | null
+  difficulty: 'easy'|'medium'|'hard' | null
+  cuisine: string
+  calories: number | null
+  source: string
   createdAt: timestamp
 }
 ```
+
+> Rendering rule: missing optional fields must COLLAPSE, never show "null"/empty.
+> See `src/lib/recipe-utils.ts` (`getSteps` falls back from `instructions`,
+> `isSparse` drives the "Complete with AI" nudge).
+
+### AI import (BYOK)
+
+`Import with AI` (in the upload dialog) → `RecipeImportDialog` → `importRecipe`
+server action. Users bring their own provider key (Anthropic / OpenAI / Google /
+Mistral) stored only in `localStorage` (`src/lib/ai/settings.ts`); the key is
+forwarded to the chosen provider per-request and never persisted server-side.
+Optional `UNSPLASH` key enables stock cover images. No new required env vars.
 
 ### Folder
 

@@ -1,125 +1,124 @@
+import type { ReactNode } from "react";
 import Image from "next/image";
-import { CalendarDays, Clock, Star } from "lucide-react";
-import { Badge } from "@/components/ui/badge";
-import { cn } from "@/lib/utils";
-import type { Recipe, DishType } from "@/lib/db/schema";
+import { Star } from "lucide-react";
+import { DIFFICULTY_LABELS, getSteps, totalTime } from "@/lib/recipe-utils";
+import { RecipeMethod } from "@/components/recipe-method";
+import type { Recipe } from "@/lib/db/schema";
 
-const DISH_TYPE_COLORS: Record<DishType, string> = {
-  lunch: "bg-emerald-100 text-emerald-700 border-emerald-200",
-  dinner: "bg-blue-100 text-blue-700 border-blue-200",
-  breakfast: "bg-yellow-100 text-yellow-700 border-yellow-200",
-  side: "bg-zinc-100 text-zinc-700 border-zinc-200",
-  appetizer: "bg-purple-100 text-purple-700 border-purple-200",
-  snack: "bg-orange-100 text-orange-700 border-orange-200",
-  sauce: "bg-red-100 text-red-700 border-red-200",
-  drinks: "bg-cyan-100 text-cyan-700 border-cyan-200",
-  vegan: "bg-green-100 text-green-700 border-green-200",
-};
+export function RecipeDetail({
+  recipe,
+  enhanceSlot,
+}: {
+  recipe: Recipe;
+  enhanceSlot?: ReactNode;
+}) {
+  const steps = getSteps(recipe);
 
-export function RecipeDetail({ recipe }: { recipe: Recipe }) {
+  // Only build tiles for facts that actually have a value.
+  const facts: { k: string; v: string }[] = [];
+  if (recipe.prepTime != null) facts.push({ k: "Prep", v: `${recipe.prepTime}m` });
+  if (recipe.cookTime != null) facts.push({ k: "Cook", v: `${recipe.cookTime}m` });
+  if (recipe.servings) facts.push({ k: "Serves", v: `${recipe.servings}` });
+  if (recipe.difficulty) facts.push({ k: "Level", v: DIFFICULTY_LABELS[recipe.difficulty] });
+  if (recipe.calories) facts.push({ k: "kcal", v: `${recipe.calories}` });
+  const shownFacts = facts.slice(0, 5);
+
+  const cat = recipe.dishTypes[0];
+
   return (
-    <div className="space-y-6">
-      {/* Hero image */}
-      <div className="relative aspect-video w-full overflow-hidden rounded-xl bg-zinc-100">
+    <div>
+      {/* Hero */}
+      <div className="relative aspect-[16/11] w-full overflow-hidden rounded-3xl bg-zinc-900">
         <Image
           src={recipe.imageUrl}
           alt={recipe.name}
           fill
-          className="object-cover"
-          sizes="(max-width: 768px) 100vw, 672px"
+          className="object-cover opacity-90"
+          sizes="(max-width: 768px) 100vw, 768px"
           priority
         />
-      </div>
-
-      {/* Title row */}
-      <div className="space-y-2">
-        <h1 className="text-2xl font-bold text-zinc-900">{recipe.name}</h1>
-        <div className="flex flex-wrap items-center gap-2">
-          {recipe.dishTypes.map((type) => (
-            <Badge
-              key={type}
-              className={cn("border text-xs capitalize", DISH_TYPE_COLORS[type as DishType])}
-              variant="outline"
-            >
-              {type}
-            </Badge>
-          ))}
-          <div className="flex items-center gap-1">
-            <Star size={15} className="fill-amber-400 text-amber-400" />
-            <span className="text-sm font-semibold text-zinc-700">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
+        <div className="absolute right-0 bottom-0 left-0 p-5 sm:p-7">
+          {cat && (
+            <span className="bg-primary inline-block rounded-full px-3 py-1 text-xs font-bold text-white capitalize">
+              {cat}
+            </span>
+          )}
+          <h1 className="font-display mt-2.5 text-2xl leading-tight font-bold text-white sm:text-3xl">
+            {recipe.name}
+          </h1>
+          <div className="mt-2 flex items-center gap-3 text-sm text-white/85">
+            <span className="flex items-center gap-1 font-semibold">
+              <Star size={14} className="fill-amber-400 text-amber-400" />
               {recipe.rating.toFixed(1)}
             </span>
+            <span>·</span>
+            <span>{totalTime(recipe)} min total</span>
+            {recipe.cuisine && (
+              <>
+                <span>·</span>
+                <span>{recipe.cuisine}</span>
+              </>
+            )}
           </div>
         </div>
       </div>
 
-      {/* Times + date */}
-      <div className="flex flex-wrap gap-6 text-sm text-zinc-600">
-        <div className="flex items-center gap-1.5">
-          <Clock size={14} />
-          <span>
-            <span className="font-medium">{recipe.prepTime} min</span> prep
-          </span>
+      {/* Description */}
+      {recipe.description && (
+        <p className="mt-5 text-base leading-relaxed text-zinc-600">{recipe.description}</p>
+      )}
+
+      {/* Quick facts */}
+      {shownFacts.length > 0 && (
+        <div
+          className="mt-5 grid gap-2.5"
+          style={{ gridTemplateColumns: `repeat(${Math.min(shownFacts.length, 5)}, minmax(0,1fr))` }}
+        >
+          {shownFacts.map((f) => (
+            <div
+              key={f.k}
+              className="rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-zinc-100"
+            >
+              <div className="font-display text-lg font-bold text-zinc-900">{f.v}</div>
+              <div className="mt-0.5 text-[11px] text-zinc-400">{f.k}</div>
+            </div>
+          ))}
         </div>
-        <div className="flex items-center gap-1.5">
-          <Clock size={14} />
-          <span>
-            <span className="font-medium">{recipe.cookTime} min</span> cook
-          </span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <CalendarDays size={14} />
-          <span>
-            Added{" "}
-            <span className="font-medium">
-              {new Date(recipe.createdAt).toLocaleDateString("en-US", {
-                month: "short",
-                day: "numeric",
-                year: "numeric",
-              })}
-            </span>
-          </span>
-        </div>
-      </div>
+      )}
+
+      {/* AI enhance nudge (for sparse recipes) */}
+      {enhanceSlot && <div className="mt-5">{enhanceSlot}</div>}
 
       {/* Tags */}
       {recipe.tags.length > 0 && (
-        <div className="flex flex-wrap gap-1.5">
+        <div className="mt-5 flex flex-wrap gap-2">
           {recipe.tags.map((tag) => (
             <span
               key={tag}
-              className="rounded-full bg-zinc-100 px-2.5 py-0.5 text-xs text-zinc-600"
+              className="rounded-full bg-zinc-100 px-3 py-1 text-xs font-medium text-zinc-600"
             >
-              {tag}
+              #{tag}
             </span>
           ))}
         </div>
       )}
 
-      {/* Ingredients */}
-      <div>
-        <h2 className="mb-3 text-base font-semibold text-zinc-900">Ingredients</h2>
-        <ul className="space-y-1.5">
-          {(recipe.ingredients as { amount: string; unit: string; name: string }[]).map(
-            (ing, i) => (
-              <li key={i} className="flex items-baseline gap-2 text-sm text-zinc-700">
-                <span className="mt-1.5 h-1 w-1 shrink-0 rounded-full bg-zinc-400" />
-                <span>
-                  {ing.amount} {ing.unit} {ing.name}
-                </span>
-              </li>
-            )
-          )}
-        </ul>
+      {/* Ingredients + Method */}
+      <div className="mt-7">
+        <RecipeMethod
+          ingredients={recipe.ingredients}
+          steps={steps}
+          baseServings={recipe.servings}
+        />
       </div>
 
-      {/* Instructions */}
-      <div>
-        <h2 className="mb-3 text-base font-semibold text-zinc-900">Instructions</h2>
-        <p className="whitespace-pre-line text-sm leading-relaxed text-zinc-700">
-          {recipe.instructions}
+      {/* Source */}
+      {recipe.source && (
+        <p className="mt-7 text-sm text-zinc-400">
+          Source: <span className="font-medium text-zinc-600">{recipe.source}</span>
         </p>
-      </div>
+      )}
     </div>
   );
 }

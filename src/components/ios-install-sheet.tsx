@@ -52,7 +52,7 @@ export function IosInstallSheet({ open, onOpenChange }: Props) {
             </span>
             <p className="pt-0.5 text-sm text-zinc-700">
               Scroll down in the menu and tap{" "}
-              <span className="font-semibold">"Add to Home Screen"</span>, then tap{" "}
+              <span className="font-semibold">&ldquo;Add to Home Screen&rdquo;</span>, then tap{" "}
               <span className="font-semibold">Add</span>.
             </p>
           </li>

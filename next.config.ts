@@ -5,19 +5,13 @@ import withPWA from "@ducanh2912/next-pwa";
 const nextConfig: NextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
+      { protocol: "https", hostname: "images.unsplash.com" },
       // Uploadthing CDN
-      {
-        protocol: "https",
-        hostname: "utfs.io",
-      },
-      {
-        protocol: "https",
-        hostname: "*.ufs.sh",
-      },
+      { protocol: "https", hostname: "utfs.io" },
+      { protocol: "https", hostname: "*.ufs.sh" },
+      // AI import can pull a cover image (og:image / schema.org) from any
+      // recipe site, so allow remote https images broadly.
+      { protocol: "https", hostname: "**" },
     ],
   },
 };

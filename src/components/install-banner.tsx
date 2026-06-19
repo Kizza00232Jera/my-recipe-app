@@ -21,6 +21,7 @@ export function InstallBanner() {
       const elapsed = Date.now() - parseInt(raw, 10);
       if (elapsed < COOLDOWN_MS) return; // still within cooldown — keep hidden
     }
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- mount-only reveal after reading localStorage
     setDismissed(false);
   }, []);
 

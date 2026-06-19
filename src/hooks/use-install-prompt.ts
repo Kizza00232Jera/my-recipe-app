@@ -15,6 +15,7 @@ export function useInstallPrompt() {
 
   useEffect(() => {
     // Detect iOS (iPhone / iPad / iPod)
+    // eslint-disable-next-line react-hooks/set-state-in-effect -- one-time platform detection on mount
     setIsIOS(/iphone|ipad|ipod/i.test(navigator.userAgent));
 
     // Detect already installed (standalone mode)

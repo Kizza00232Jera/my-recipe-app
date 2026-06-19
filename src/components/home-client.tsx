@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useState } from "react";
 import { useUser, UserButton } from "@clerk/nextjs";
-import { ChefHat } from "lucide-react";
+import { ChefHat, Plus } from "lucide-react";
 import { RecipeGrid } from "@/components/recipe-grid";
 import { FolderSidebar } from "@/components/folder-sidebar";
 import { MobileFilterBar, DEFAULT_MOBILE_FILTERS } from "@/components/mobile-filter-bar";
@@ -35,26 +35,28 @@ export function HomeClient({ recipes, folders, isDemo = false, linkPrefix }: Hom
       {isDemo && <DemoBanner />}
 
       {/* Header */}
-      <header className="sticky top-0 z-30 border-b border-zinc-200 bg-white">
+      <header className="sticky top-0 z-30 border-b border-zinc-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
           {/* Mobile: greeting */}
           <div className="flex items-center gap-2 md:hidden">
-            <span className="text-base font-semibold text-zinc-900">
+            <span className="font-display text-base font-bold text-zinc-900">
               {isDemo ? "Welcome 👋" : `Hello, ${firstName} 👋`}
             </span>
           </div>
 
           {/* Desktop: logo + app name */}
           <div className="hidden items-center gap-2 md:flex">
-            <ChefHat size={22} className="text-zinc-900" />
-            <span className="font-semibold text-zinc-900">My Recipes</span>
+            <span className="bg-brand-soft text-primary grid h-8 w-8 place-items-center rounded-xl">
+              <ChefHat size={18} />
+            </span>
+            <span className="font-display text-lg font-bold text-zinc-900">My Recipes</span>
           </div>
 
           <div className="ml-auto flex items-center gap-3">
             {isDemo ? (
               <Link
                 href="/sign-in"
-                className="rounded-lg border border-zinc-200 px-3 py-1.5 text-sm font-medium text-zinc-700 transition-colors hover:bg-zinc-50"
+                className="rounded-xl border border-zinc-200 px-3.5 py-2 text-sm font-semibold text-zinc-700 transition-colors hover:bg-zinc-50"
               >
                 Sign in
               </Link>
@@ -63,9 +65,9 @@ export function HomeClient({ recipes, folders, isDemo = false, linkPrefix }: Hom
                 {/* Add Recipe button — desktop only (mobile uses bottom nav) */}
                 <button
                   onClick={() => setUploadOpen(true)}
-                  className="hidden md:inline-flex items-center gap-1.5 rounded-lg bg-zinc-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-zinc-700 transition-colors"
+                  className="bg-primary text-primary-foreground hidden items-center gap-1.5 rounded-xl px-4 py-2 text-sm font-semibold shadow-sm shadow-green-600/20 transition-opacity hover:opacity-90 md:inline-flex"
                 >
-                  + Add Recipe
+                  <Plus size={16} /> Add recipe
                 </button>
                 <UserButton />
               </>

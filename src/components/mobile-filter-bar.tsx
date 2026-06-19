@@ -114,7 +114,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
             className={cn(
               "inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               !isFiltered
-                ? "border-zinc-900 bg-zinc-900 text-white"
+                ? "border-primary bg-primary text-primary-foreground"
                 : "border-zinc-200 bg-white text-zinc-600"
             )}
           >
@@ -131,7 +131,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
             className={cn(
               "relative inline-flex shrink-0 items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
               isFiltered
-                ? "border-zinc-900 bg-zinc-900 text-white"
+                ? "border-primary bg-primary text-primary-foreground"
                 : "border-zinc-200 bg-white text-zinc-600"
             )}
           >
@@ -141,7 +141,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
               <span
                 className={cn(
                   "flex h-4 w-4 items-center justify-center rounded-full text-[9px] font-bold",
-                  isFiltered ? "bg-white text-zinc-900" : "bg-zinc-900 text-white"
+                  isFiltered ? "bg-white text-primary" : "bg-primary text-primary-foreground"
                 )}
               >
                 {activeCount}
@@ -198,7 +198,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                   value={draft.cookTimeMin ?? ""}
                   onChange={(e) => setCookMin(e.target.value)}
                   placeholder="0"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <span className="shrink-0 text-xs text-zinc-400">min</span>
               </div>
@@ -211,7 +211,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                   value={draft.cookTimeMax ?? ""}
                   onChange={(e) => setCookMax(e.target.value)}
                   placeholder="any"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-zinc-900"
+                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
                 <span className="shrink-0 text-xs text-zinc-400">min</span>
               </div>
@@ -232,7 +232,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         active
-                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          ? "border-primary bg-primary text-primary-foreground"
                           : "border-zinc-200 bg-white text-zinc-600"
                       )}
                     >
@@ -264,7 +264,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
                       className={cn(
                         "inline-flex items-center gap-1.5 rounded-full border px-3 py-1.5 text-xs font-medium transition-colors",
                         active
-                          ? "border-zinc-900 bg-zinc-900 text-white"
+                          ? "border-primary bg-primary text-primary-foreground"
                           : "border-zinc-200 bg-white text-zinc-600"
                       )}
                     >
@@ -286,7 +286,7 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
         <div className="shrink-0 border-t border-zinc-100 px-5 py-4">
           <button
             onClick={applyFilters}
-            className="w-full rounded-xl bg-zinc-900 py-3 text-sm font-semibold text-white transition-colors active:bg-zinc-700"
+            className="bg-primary text-primary-foreground w-full rounded-xl py-3 text-sm font-semibold transition-opacity active:opacity-90"
           >
             Apply
           </button>
