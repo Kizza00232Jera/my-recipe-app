@@ -48,50 +48,59 @@
 
 A public demo is available at `/demo` — no account required. Visitors can browse real recipes in read-only mode to see the full UI without signing up.
 
-> **[Try the live demo &rarr;](https://your-app.vercel.app/demo)**
+> **[Try the live demo &rarr;](https://my-recipe-app.vercel.app/demo)**
 
 ---
 
 ## Features
 
-- **[Pinterest-style recipe grid](src/components/recipe-grid.tsx)** — responsive masonry layout (1→2→3→4 columns) with hero images, dish type badges, star ratings, and prep/cook times
-- **[Full recipe detail page](src/app/recipe/[id]/page.tsx)** — ingredients list, step-by-step instructions, metadata, and hero image
-- **[Add & edit recipes](src/components/recipe-upload-dialog.tsx)** — structured form with image upload, dynamic ingredient rows, multi-select dish types, tags, and folder assignment
-- **[Folder organization](src/components/folder-sidebar.tsx)** — create folders, filter the grid by folder, and view recipe counts per folder
-- **[Multi-select & batch move](src/components/recipe-grid.tsx)** — select multiple recipe cards and move them to a folder in one action
-- **[Mobile filter bar](src/components/mobile-filter-bar.tsx)** — bottom sheet with cook time range, dish type chips, and folder filters
-- **[Public demo mode](src/app/demo/page.tsx)** — unauthenticated visitors browse your real recipes read-only via a `DEMO_CLERK_ID` environment variable
-- **[PWA install prompt](src/components/install-banner.tsx)** — smart banner with 2-day dismissal cooldown; Android uses native install prompt, iOS shows step-by-step instructions
-- **[OAuth authentication](src/proxy.ts)** — GitHub, Google, and Apple sign-in via Clerk middleware
-- **[Rate limiting](src/lib/ratelimit.ts)** — Upstash Redis protects upload (10/hr) and delete (20/hr) endpoints
-- **[Error monitoring](src/instrumentation.ts)** — Sentry captures server action errors, request errors, and client-side exceptions
-- **[Analytics](src/components/posthog-provider.tsx)** — PostHog tracks pageviews and auto-identifies authenticated users
+### ✨ Create with AI (bring your own key)
+
+- **[Get 3 ideas](src/components/recipe-import-panel.tsx)** — describe what you feel like cooking ("simple chicken dinner", "pancakes with fruit"). The AI returns **3 titles only** (token-light), then generates the full recipe **only for the one you pick**.
+- **[Import from a link or text](src/server/actions/import.ts)** — paste a recipe URL or any text and the AI fills every field, parsing schema.org data when present and **researching the gaps** (e.g. a missing cook temperature).
+- **[Provenance you can trust](src/components/recipe-import-panel.tsx)** — every field is colour-coded **from your source** vs **added by AI**, and nothing is saved until you review it.
+- **[Always gets a cover photo](src/lib/ai/providers.ts)** — source image → Unsplash → keyless AI-generated, so an import never lands without a picture.
+- **[Bring your own key](src/lib/ai/settings.ts)** — Anthropic, OpenAI, Google or Mistral; the model list adapts to the provider, and keys live only in the browser, never on the server.
+
+### 🍳 Cookbook
+
+- **[Foodie recipe grid](src/components/recipe-card.tsx)** — responsive card grid (1→2→3→4 columns) with hero images, category chips, star ratings, and total time.
+- **[Rich recipe page](src/components/recipe-detail.tsx)** — hero with overlay title, quick-facts strip, **Ingredients / Method tabs**, a **servings scaler** that rescales amounts, and tap-to-check ingredients. Missing fields collapse instead of showing blanks.
+- **[Add & edit, with drafts](src/components/recipe-upload-dialog.tsx)** — step-by-step method boxes, multi-photo upload, clickable star rating, bigger keyboard-safe mobile fields, **autosave drafts**, and a **confirm-on-close** so an accidental dismiss never loses work.
+- **[Folders, multi-select & filters](src/components/folder-sidebar.tsx)** — organise into folders, batch-move recipes, and filter by cook time / dish type on mobile.
+- **[Public demo mode](src/app/demo/page.tsx)** — unauthenticated visitors browse real recipes read-only via a `DEMO_CLERK_ID` environment variable.
+
+### 🛠 Platform
+
+- **[OAuth authentication](src/proxy.ts)** — GitHub, Google, and Apple sign-in via Clerk middleware.
+- **[Rate limiting](src/lib/ratelimit.ts)** — Upstash Redis protects upload (10/hr) and delete (20/hr) endpoints.
+- **[Error monitoring](src/instrumentation.ts)** — Sentry captures server action, request, and client-side errors.
+- **[Analytics](src/components/posthog-provider.tsx)** — PostHog tracks pageviews and auto-identifies authenticated users.
+- **[Installable PWA](src/components/install-banner.tsx)** — smart install banner (Android native prompt, iOS step-by-step) with a 2-day cooldown.
 
 ---
 
 ## Screenshots
 
-<!-- REPLACE these placeholders with your actual screenshots -->
-
 <table>
   <tr>
     <td align="center" width="50%">
-      <strong>Recipe Grid (Desktop)</strong><br /><br />
+      <strong>Recipe grid (Desktop)</strong><br /><br />
       <img src="docs/screenshots/desktop-grid.png" alt="Desktop grid view" width="100%" />
     </td>
     <td align="center" width="50%">
-      <strong>Recipe Detail (Desktop)</strong><br /><br />
+      <strong>Recipe page (Desktop)</strong><br /><br />
       <img src="docs/screenshots/desktop-recipe.png" alt="Desktop recipe detail" width="100%" />
     </td>
   </tr>
   <tr>
     <td align="center">
-      <strong>Recipe Grid (Mobile)</strong><br /><br />
+      <strong>Recipe grid (Mobile)</strong><br /><br />
       <img src="docs/screenshots/mobile-grid.png" alt="Mobile grid view" width="280" />
     </td>
     <td align="center">
-      <strong>Add Recipe Form (Mobile)</strong><br /><br />
-      <img src="docs/screenshots/mobile-upload.png" alt="Mobile upload form" width="280" />
+      <strong>Recipe page (Mobile)</strong><br /><br />
+      <img src="docs/screenshots/mobile-recipe.png" alt="Mobile recipe page" width="280" />
     </td>
   </tr>
 </table>
@@ -106,8 +115,10 @@ A public demo is available at `/demo` — no account required. Visitors can brow
 | Language         | TypeScript 5                  | End-to-end type safety from database schema to UI props             |
 | Styling          | Tailwind CSS v4 + shadcn/ui   | Utility-first CSS with accessible, pre-built component primitives   |
 | Database         | Neon Postgres + Drizzle ORM   | Serverless Postgres with type-safe queries — zero raw SQL           |
+| AI (optional)    | Anthropic · OpenAI · Google · Mistral | "Create with AI" — bring-your-own-key recipe ideas, import & generation |
+| Stock photos     | Unsplash (optional)           | Cover images for AI-created recipes, with a keyless generated fallback |
 | Auth             | Clerk                         | Drop-in OAuth (GitHub, Google, Apple) with middleware route protection |
-| File Upload      | Uploadthing                   | Type-safe uploads with built-in CDN — one hero image per recipe     |
+| File Upload      | Uploadthing                   | Type-safe uploads with built-in CDN — cover + gallery photos per recipe |
 | Error Monitoring | Sentry                        | Server action, edge, and client error capture with source maps      |
 | Analytics        | PostHog                       | Privacy-friendly product analytics with auto user identification    |
 | Rate Limiting    | Upstash Redis                 | Serverless Redis — sliding window limits on upload and delete       |
@@ -127,7 +138,7 @@ A public demo is available at `/demo` — no account required. Visitors can brow
 
 ```bash
 # Clone the repository
-git clone https://github.com/your-username/my-recipe-app.git
+git clone https://github.com/Kizza00232Jera/my-recipe-app.git
 cd my-recipe-app
 
 # Install dependencies
@@ -176,6 +187,9 @@ UPSTASH_REDIS_REST_TOKEN=
 
 # Demo mode (optional)
 DEMO_CLERK_ID=
+
+# AI "Create with AI" (optional — users can also paste their own keys in-app)
+UNSPLASH_ACCESS_KEY=
 ```
 
 | Variable | Description | Where to Get It |
@@ -194,6 +208,7 @@ DEMO_CLERK_ID=
 | `UPSTASH_REDIS_REST_URL` | Upstash Redis REST endpoint | [upstash.com](https://upstash.com) → database → REST API |
 | `UPSTASH_REDIS_REST_TOKEN` | Upstash Redis REST token | Same Upstash dashboard page |
 | `DEMO_CLERK_ID` | Your Clerk user ID (enables `/demo`) | Clerk → Users → your account → user ID (starts with `user_`) |
+| `UNSPLASH_ACCESS_KEY` | _Optional._ Shared stock-photo key for AI-created recipes; without it the app falls back to keyless AI image generation. Users can also enter their own key in-app. | [unsplash.com/developers](https://unsplash.com/developers) |
 
 ### Database Setup
 
