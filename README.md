@@ -48,7 +48,7 @@
 
 A public demo is available at `/demo` — no account required. Visitors can browse real recipes in read-only mode to see the full UI without signing up.
 
-> **[Try the live demo &rarr;](https://my-recipe-app.vercel.app/demo)**
+> **[Try the live demo &rarr;](https://my-recipe-app-taupe.vercel.app/demo)**
 
 ---
 
