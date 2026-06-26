@@ -162,12 +162,15 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
       {/* Bottom sheet */}
       <div
         className={cn(
-          "fixed bottom-0 left-0 right-0 z-[60] flex max-h-[82vh] flex-col rounded-t-2xl bg-white shadow-xl transition-transform duration-300 ease-out md:hidden",
+          "fixed bottom-0 left-0 right-0 z-[60] flex max-h-[88vh] flex-col rounded-t-3xl bg-white shadow-2xl transition-transform duration-300 ease-out md:hidden",
           open ? "translate-y-0" : "translate-y-full"
         )}
       >
+        {/* Drag handle */}
+        <div className="mx-auto mt-2.5 h-1.5 w-10 shrink-0 rounded-full bg-zinc-300" />
+
         {/* Sheet header */}
-        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-5 py-4">
+        <div className="flex shrink-0 items-center justify-between border-b border-zinc-100 px-5 py-3.5">
           <span className="text-base font-semibold text-zinc-900">Filter</span>
           <div className="flex items-center gap-4">
             {isFiltered && (
@@ -189,32 +192,31 @@ export function MobileFilterBar({ recipes, folders, filters, onFilter }: MobileF
           {/* Cook time range */}
           <section>
             <p className="mb-3 text-sm font-semibold text-zinc-900">Cook time</p>
-            <div className="flex items-center gap-3">
-              <div className="flex flex-1 items-center gap-2">
-                <span className="shrink-0 text-xs text-zinc-500">From</span>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-zinc-500">Min (min)</span>
                 <input
                   type="number"
                   min={0}
+                  inputMode="numeric"
                   value={draft.cookTimeMin ?? ""}
                   onChange={(e) => setCookMin(e.target.value)}
                   placeholder="0"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="focus:ring-primary w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-base focus:ring-2 focus:outline-none"
                 />
-                <span className="shrink-0 text-xs text-zinc-400">min</span>
-              </div>
-              <span className="shrink-0 text-sm text-zinc-300">—</span>
-              <div className="flex flex-1 items-center gap-2">
-                <span className="shrink-0 text-xs text-zinc-500">To</span>
+              </label>
+              <label className="block">
+                <span className="mb-1.5 block text-xs font-medium text-zinc-500">Max (min)</span>
                 <input
                   type="number"
                   min={0}
+                  inputMode="numeric"
                   value={draft.cookTimeMax ?? ""}
                   onChange={(e) => setCookMax(e.target.value)}
                   placeholder="any"
-                  className="w-full rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="focus:ring-primary w-full rounded-lg border border-zinc-200 px-3 py-2.5 text-base focus:ring-2 focus:outline-none"
                 />
-                <span className="shrink-0 text-xs text-zinc-400">min</span>
-              </div>
+              </label>
             </div>
           </section>
 

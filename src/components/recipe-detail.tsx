@@ -37,26 +37,26 @@ export function RecipeDetail({
           sizes="(max-width: 768px) 100vw, 768px"
           priority
         />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/15 to-transparent" />
-        <div className="absolute right-0 bottom-0 left-0 p-5 sm:p-7">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/25 to-transparent" />
+        <div className="absolute right-0 bottom-0 left-0 p-4 sm:p-7">
           {cat && (
-            <span className="bg-primary inline-block rounded-full px-3 py-1 text-xs font-bold text-white capitalize">
+            <span className="bg-primary inline-block rounded-full px-3 py-1 text-xs font-bold text-white capitalize shadow-sm">
               {cat}
             </span>
           )}
-          <h1 className="font-display mt-2.5 text-2xl leading-tight font-bold text-white sm:text-3xl">
+          <h1 className="font-display mt-2.5 text-2xl leading-[1.1] font-bold tracking-tight text-white text-balance sm:text-3xl md:text-4xl">
             {recipe.name}
           </h1>
-          <div className="mt-2 flex items-center gap-3 text-sm text-white/85">
+          <div className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 text-sm text-white/90">
             <span className="flex items-center gap-1 font-semibold">
               <Star size={14} className="fill-amber-400 text-amber-400" />
               {recipe.rating.toFixed(1)}
             </span>
-            <span>·</span>
+            <span className="text-white/40">·</span>
             <span>{totalTime(recipe)} min total</span>
             {recipe.cuisine && (
               <>
-                <span>·</span>
+                <span className="text-white/40">·</span>
                 <span>{recipe.cuisine}</span>
               </>
             )}
@@ -66,22 +66,24 @@ export function RecipeDetail({
 
       {/* Description */}
       {recipe.description && (
-        <p className="mt-5 text-base leading-relaxed text-zinc-600">{recipe.description}</p>
+        <p className="mt-5 text-base leading-relaxed text-zinc-700">{recipe.description}</p>
       )}
 
-      {/* Quick facts */}
+      {/* Quick facts — auto-fit so they wrap instead of squashing on mobile */}
       {shownFacts.length > 0 && (
         <div
           className="mt-5 grid gap-2.5"
-          style={{ gridTemplateColumns: `repeat(${Math.min(shownFacts.length, 5)}, minmax(0,1fr))` }}
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(76px, 1fr))" }}
         >
           {shownFacts.map((f) => (
             <div
               key={f.k}
-              className="rounded-2xl bg-white p-3 text-center shadow-sm ring-1 ring-zinc-100"
+              className="from-brand-soft/60 rounded-2xl bg-gradient-to-b to-white p-3 text-center shadow-sm ring-1 ring-zinc-100"
             >
-              <div className="font-display text-lg font-bold text-zinc-900">{f.v}</div>
-              <div className="mt-0.5 text-[11px] text-zinc-400">{f.k}</div>
+              <div className="font-display text-lg leading-none font-bold text-zinc-900">{f.v}</div>
+              <div className="mt-1 text-[11px] font-medium tracking-wide text-zinc-500 uppercase">
+                {f.k}
+              </div>
             </div>
           ))}
         </div>

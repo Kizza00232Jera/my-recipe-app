@@ -57,7 +57,7 @@ export function FoldersClient({ folders, recipes }: FoldersClientProps) {
       <div className="mx-auto max-w-7xl px-4 py-6 pb-24 sm:px-6">
         {/* New folder input */}
         {isCreating && (
-          <div className="mb-4 flex items-center gap-2">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center">
             <input
               autoFocus
               type="text"
@@ -71,26 +71,29 @@ export function FoldersClient({ folders, recipes }: FoldersClientProps) {
                 }
               }}
               placeholder="Folder name…"
-              className="flex-1 rounded-lg border border-zinc-200 px-3 py-2 text-sm focus:ring-2 focus:ring-zinc-900 focus:outline-none"
+              className="focus:ring-primary focus:border-primary w-full flex-1 rounded-lg border border-zinc-200 px-3 py-2.5 text-base focus:ring-2 focus:outline-none sm:text-sm"
             />
-            <Button
-              onClick={handleCreate}
-              disabled={!newFolderName.trim() || isSubmitting}
-              size="sm"
-            >
-              {isSubmitting ? "Creating…" : "Create"}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              disabled={isSubmitting}
-              onClick={() => {
-                setIsCreating(false);
-                setNewFolderName("");
-              }}
-            >
-              Cancel
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button
+                onClick={handleCreate}
+                disabled={!newFolderName.trim() || isSubmitting}
+                size="sm"
+                className="flex-1 sm:flex-none"
+              >
+                {isSubmitting ? "Creating…" : "Create"}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                disabled={isSubmitting}
+                onClick={() => {
+                  setIsCreating(false);
+                  setNewFolderName("");
+                }}
+              >
+                Cancel
+              </Button>
+            </div>
           </div>
         )}
 
@@ -107,20 +110,22 @@ export function FoldersClient({ folders, recipes }: FoldersClientProps) {
             </Button>
           </div>
         ) : (
-          <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2.5 sm:grid-cols-3 sm:gap-3 md:grid-cols-4">
             {folders.map((folder) => {
               const count = countInFolder(folder.id);
               return (
                 <div
                   key={folder.id}
-                  className="flex flex-col items-start gap-2 rounded-xl border border-zinc-200 bg-white p-4"
+                  className="group flex flex-col items-start gap-2.5 rounded-2xl border border-zinc-100 bg-white p-3.5 shadow-sm transition-all hover:-translate-y-0.5 hover:shadow-md sm:p-4"
                 >
-                  <FolderOpen size={24} className="text-zinc-400" />
-                  <div>
-                    <p className="line-clamp-1 text-sm font-semibold text-zinc-900">
+                  <span className="bg-brand-soft text-primary grid h-11 w-11 place-items-center rounded-xl transition-transform group-hover:scale-105">
+                    <FolderOpen size={22} />
+                  </span>
+                  <div className="min-w-0 w-full">
+                    <p className="font-display line-clamp-1 text-sm font-bold text-zinc-900">
                       {folder.name}
                     </p>
-                    <p className="mt-0.5 text-xs text-zinc-400">
+                    <p className="mt-0.5 text-xs font-medium text-zinc-400">
                       {count} {count === 1 ? "recipe" : "recipes"}
                     </p>
                   </div>

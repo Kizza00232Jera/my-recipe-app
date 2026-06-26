@@ -26,11 +26,23 @@ export type ImportResult = {
   image: { url: string | null; source: Provenance | "none"; query?: string };
   sourceLabel: string;
   modelLabel: string;
+  quota: QuotaStatus;
+};
+
+// ── Daily AI quota (owner-funded; per user, per kind, resets daily) ──────────
+export type QuotaKind = "ideas" | "generate";
+export type QuotaStatus = {
+  kind: QuotaKind;
+  limit: number;
+  used: number;
+  remaining: number;
+  unlimited: boolean; // true for the owner account — no limit applies
+  resetsAt: string; // ISO timestamp of the next daily reset
 };
 
 // Token-light AI idea suggestions (titles + one-line blurbs only).
 export type RecipeIdea = { title: string; blurb: string };
-export type IdeasResult = { ideas: RecipeIdea[] };
+export type IdeasResult = { ideas: RecipeIdea[]; quota: QuotaStatus };
 
 // Flat values handed off to the editor form once the user accepts the import.
 export type ImportDraft = {

@@ -647,7 +647,7 @@ export function RecipeUploadDialog({ open, onOpenChange, folders, recipe }: Prop
                     }}
                     onBlur={commitTag}
                     placeholder="add tag…"
-                    className={cn(FIELD, "w-32")}
+                    className={cn(FIELD, "w-full min-w-[7rem] flex-1 sm:w-32 sm:flex-none")}
                   />
                 </div>
               </div>
@@ -663,13 +663,13 @@ export function RecipeUploadDialog({ open, onOpenChange, folders, recipe }: Prop
                       value={ing.amount}
                       onChange={(e) => updateIngredient(i, "amount", e.target.value)}
                       placeholder="200"
-                      className={cn(FIELD, "w-16 px-2 text-center")}
+                      className={cn(FIELD, "w-14 px-1.5 text-center sm:w-16 sm:px-2")}
                     />
                     <input
                       value={ing.unit}
                       onChange={(e) => updateIngredient(i, "unit", e.target.value)}
                       placeholder="g"
-                      className={cn(FIELD, "w-16 px-2 text-center")}
+                      className={cn(FIELD, "w-14 px-1.5 text-center sm:w-16 sm:px-2")}
                     />
                     <input
                       value={ing.name}

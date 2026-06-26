@@ -1,21 +1,26 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, Lightbulb, Loader2, Settings2, Sparkles } from "lucide-react";
+import { ChevronLeft, Lightbulb, Loader2, Lock, Sparkles } from "lucide-react";
 import { UploadButton } from "@/lib/uploadthing-client";
-import { generateRecipe, importRecipe, suggestRecipeIdeas } from "@/server/actions/import";
 import {
-  activeKey,
-  loadSettings,
-  saveSettings,
-  type AiSettings,
-} from "@/lib/ai/settings";
-import { AI_PROVIDERS, DEFAULT_MODEL, PROVIDER_IDS, modelLabel, type ProviderId } from "@/lib/ai/models";
+  generateRecipe,
+  getAiQuotas,
+  importRecipe,
+  suggestRecipeIdeas,
+} from "@/server/actions/import";
 import type { DishType } from "@/lib/db/schema";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
-import type { Field, ImportDraft, ImportResult, Provenance, RecipeIdea } from "@/lib/ai/types";
+import type {
+  Field,
+  ImportDraft,
+  ImportResult,
+  Provenance,
+  QuotaStatus,
+  RecipeIdea,
+} from "@/lib/ai/types";
 
 const IDEA_MEALS: DishType[] = ["breakfast", "lunch", "dinner", "snack", "drinks", "vegan"];
 const MEAL_LABEL: Record<string, string> = {
@@ -27,10 +32,15 @@ const MEAL_LABEL: Record<string, string> = {
   vegan: "Vegan",
 };
 
+type Quotas = { ideas: QuotaStatus; generate: QuotaStatus };
+
+const locked = (q?: QuotaStatus) => !!q && !q.unlimited && q.remaining <= 0;
+
 /**
- * Inline import flow rendered INSIDE the editor dialog (no nested modal — that
- * caused the editor to close on mobile). States: input → settings → loading →
- * review. On accept it hands a flat draft back to the editor form.
+ * Inline AI flow rendered INSIDE the editor dialog. AI runs on the SITE OWNER'S
+ * key (no per-user keys) — each user gets a small daily allowance for "ideas"
+ * and "generate", shown as counters here and enforced server-side.
+ * States: input → loading → review. On accept it hands a flat draft to the form.
  */
 export function RecipeImportPanel({
   onImported,
@@ -39,8 +49,7 @@ export function RecipeImportPanel({
   onImported: (draft: ImportDraft) => void;
   onCancel: () => void;
 }) {
-  const [settings, setSettings] = useState<AiSettings>(() => loadSettings());
-  const [showSettings, setShowSettings] = useState(false);
+  const [quotas, setQuotas] = useState<Quotas | null>(null);
   const [mode, setMode] = useState<"ideas" | "link" | "text">("ideas");
   const [content, setContent] = useState("");
   const [loading, setLoading] = useState(false);
@@ -55,49 +64,19 @@ export function RecipeImportPanel({
   const [ideasLoading, setIdeasLoading] = useState(false);
   const [genTitle, setGenTitle] = useState<string | null>(null);
 
-  const keyLabel = `${cap(settings.provider)} · ${modelLabel(settings.provider, settings.model)}`;
-
-  function patchSettings(next: AiSettings) {
-    setSettings(next);
-    saveSettings(next);
-  }
-
-  async function runImport() {
-    if (!activeKey(settings)) {
-      toast.message("Add your API key first");
-      setShowSettings(true);
-      return;
-    }
-    if (!content.trim()) {
-      toast.error(mode === "link" ? "Paste a URL first." : "Paste some text first.");
-      return;
-    }
-    setLoading(true);
-    try {
-      const res = await importRecipe({
-        mode: mode === "link" ? "link" : "text",
-        content: content.trim(),
-        provider: settings.provider,
-        apiKey: activeKey(settings),
-        model: settings.model,
-        unsplashKey: settings.unsplashKey || undefined,
-        imageMode: settings.imageMode,
+  useEffect(() => {
+    getAiQuotas()
+      .then(setQuotas)
+      .catch(() => {
+        /* counters are best-effort; the server still enforces the real limit */
       });
-      setResult(res);
-      setCover(res.image.url ?? "");
-    } catch (err) {
-      toast.error(err instanceof Error ? err.message : "Import failed.");
-    } finally {
-      setLoading(false);
-    }
-  }
+  }, []);
+
+  const ideasLocked = locked(quotas?.ideas);
+  const genLocked = locked(quotas?.generate);
 
   async function getIdeas() {
-    if (!activeKey(settings)) {
-      toast.message("Add your API key first");
-      setShowSettings(true);
-      return;
-    }
+    if (ideasLocked) return;
     if (!ideaQuery.trim()) {
       toast.error("Tell me what you feel like cooking.");
       return;
@@ -109,11 +88,9 @@ export function RecipeImportPanel({
         query: ideaQuery.trim(),
         mealType: mealType ? MEAL_LABEL[mealType] : undefined,
         simple,
-        provider: settings.provider,
-        apiKey: activeKey(settings),
-        model: settings.model,
       });
       setIdeas(res.ideas);
+      setQuotas((q) => (q ? { ...q, ideas: res.quota } : q));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't get ideas.");
     } finally {
@@ -121,20 +98,39 @@ export function RecipeImportPanel({
     }
   }
 
-  async function pickIdea(title: string) {
-    setGenTitle(title);
+  async function runImport() {
+    if (genLocked) return;
+    if (!content.trim()) {
+      toast.error(mode === "link" ? "Paste a URL first." : "Paste some text first.");
+      return;
+    }
+    setLoading(true);
     try {
-      const res = await generateRecipe({
-        title,
-        query: ideaQuery.trim() || undefined,
-        provider: settings.provider,
-        apiKey: activeKey(settings),
-        model: settings.model,
-        unsplashKey: settings.unsplashKey || undefined,
-        imageMode: settings.imageMode,
+      const res = await importRecipe({
+        mode: mode === "link" ? "link" : "text",
+        content: content.trim(),
       });
       setResult(res);
       setCover(res.image.url ?? "");
+      setQuotas((q) => (q ? { ...q, generate: res.quota } : q));
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Import failed.");
+    } finally {
+      setLoading(false);
+    }
+  }
+
+  async function pickIdea(title: string) {
+    if (genLocked) {
+      toast.error("You've used your AI recipe generations for today — they reset tomorrow.");
+      return;
+    }
+    setGenTitle(title);
+    try {
+      const res = await generateRecipe({ title, query: ideaQuery.trim() || undefined });
+      setResult(res);
+      setCover(res.image.url ?? "");
+      setQuotas((q) => (q ? { ...q, generate: res.quota } : q));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't generate the recipe.");
     } finally {
@@ -173,27 +169,13 @@ export function RecipeImportPanel({
         >
           <ChevronLeft size={16} /> {result ? "Back" : "Back to form"}
         </button>
-        <button
-          type="button"
-          onClick={() => setShowSettings((v) => !v)}
-          className={cn(
-            "ml-auto inline-flex items-center gap-1.5 rounded-lg border px-3 py-1.5 text-xs font-semibold",
-            showSettings ? "border-primary text-primary" : "border-zinc-200 text-zinc-600"
-          )}
-        >
-          <Settings2 size={13} /> {keyLabel}
-        </button>
+        <div className="ml-auto flex items-center gap-1.5">
+          <QuotaChip label="Ideas" q={quotas?.ideas} />
+          <QuotaChip label="Recipes" q={quotas?.generate} />
+        </div>
       </div>
 
-      {showSettings && (
-        <SettingsCard
-          settings={settings}
-          onChange={patchSettings}
-          onDone={() => setShowSettings(false)}
-        />
-      )}
-
-      {!showSettings && !result && (
+      {!result && (
         <div className="space-y-3">
           {/* mode tabs */}
           <div className="inline-flex rounded-xl bg-zinc-100 p-1">
@@ -258,22 +240,26 @@ export function RecipeImportPanel({
                 </button>
               </div>
 
-              <button
-                type="button"
-                onClick={getIdeas}
-                disabled={ideasLoading}
-                className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold disabled:opacity-60"
-              >
-                {ideasLoading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> Thinking of ideas…
-                  </>
-                ) : (
-                  <>
-                    <Lightbulb size={16} /> Get 3 ideas
-                  </>
-                )}
-              </button>
+              {ideasLocked ? (
+                <LockedNote q={quotas?.ideas} what="recipe ideas" />
+              ) : (
+                <button
+                  type="button"
+                  onClick={getIdeas}
+                  disabled={ideasLoading}
+                  className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold disabled:opacity-60"
+                >
+                  {ideasLoading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Thinking of ideas…
+                    </>
+                  ) : (
+                    <>
+                      <Lightbulb size={16} /> Get 3 ideas
+                    </>
+                  )}
+                </button>
+              )}
 
               {ideas.length > 0 && (
                 <div className="space-y-2 pt-1">
@@ -285,7 +271,7 @@ export function RecipeImportPanel({
                       key={i}
                       type="button"
                       onClick={() => pickIdea(idea.title)}
-                      disabled={!!genTitle}
+                      disabled={!!genTitle || genLocked}
                       className="hover:border-primary flex w-full items-center gap-3 rounded-xl border border-zinc-200 bg-white p-3.5 text-left transition-colors disabled:opacity-60"
                     >
                       <span className="min-w-0 flex-1">
@@ -298,11 +284,14 @@ export function RecipeImportPanel({
                       </span>
                       {genTitle === idea.title ? (
                         <Loader2 size={16} className="text-primary animate-spin" />
+                      ) : genLocked ? (
+                        <Lock size={15} className="shrink-0 text-zinc-400" />
                       ) : (
                         <span className="text-primary shrink-0 text-sm font-bold">Generate →</span>
                       )}
                     </button>
                   ))}
+                  {genLocked && <LockedNote q={quotas?.generate} what="recipe generations" />}
                 </div>
               )}
 
@@ -335,135 +324,68 @@ export function RecipeImportPanel({
                 review everything next. Instagram only exposes its caption text reliably.
               </p>
 
-              <button
-                type="button"
-                onClick={runImport}
-                disabled={loading}
-                className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold disabled:opacity-60"
-              >
-                {loading ? (
-                  <>
-                    <Loader2 size={16} className="animate-spin" /> Reading &amp; researching…
-                  </>
-                ) : (
-                  <>
-                    <Sparkles size={16} /> Import &amp; review
-                  </>
-                )}
-              </button>
+              {genLocked ? (
+                <LockedNote q={quotas?.generate} what="recipe generations" />
+              ) : (
+                <button
+                  type="button"
+                  onClick={runImport}
+                  disabled={loading}
+                  className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold disabled:opacity-60"
+                >
+                  {loading ? (
+                    <>
+                      <Loader2 size={16} className="animate-spin" /> Reading &amp; researching…
+                    </>
+                  ) : (
+                    <>
+                      <Sparkles size={16} /> Import &amp; review
+                    </>
+                  )}
+                </button>
+              )}
             </>
           )}
         </div>
       )}
 
-      {!showSettings && result && (
-        <Review result={result} cover={cover} onCover={setCover} onAccept={accept} />
-      )}
+      {result && <Review result={result} cover={cover} onCover={setCover} onAccept={accept} />}
     </div>
   );
 }
 
-// ── settings (inline) ───────────────────────────────────────────────────────
+// ── quota UI ─────────────────────────────────────────────────────────────────
 
-function SettingsCard({
-  settings,
-  onChange,
-  onDone,
-}: {
-  settings: AiSettings;
-  onChange: (s: AiSettings) => void;
-  onDone: () => void;
-}) {
-  const provider = settings.provider;
-  const meta = AI_PROVIDERS[provider];
-
-  function setProvider(p: ProviderId) {
-    const keep = AI_PROVIDERS[p].models.some((m) => m.id === settings.model)
-      ? settings.model
-      : DEFAULT_MODEL[p];
-    onChange({ ...settings, provider: p, model: keep });
-  }
-
+function QuotaChip({ label, q }: { label: string; q?: QuotaStatus }) {
+  if (!q) return null;
+  if (q.unlimited)
+    return (
+      <span className="inline-flex items-center gap-1 rounded-lg border border-emerald-200 bg-emerald-50 px-2.5 py-1.5 text-xs font-semibold text-emerald-700">
+        {label} · ∞
+      </span>
+    );
+  const out = q.remaining <= 0;
   return (
-    <div className="mb-4 space-y-4 rounded-2xl border border-zinc-200 bg-white p-4">
-      <p className="text-sm leading-relaxed text-zinc-500">
-        Bring your own key — imports run on <b>your</b> credits. Stored only on this device, never on
-        our servers.
-      </p>
+    <span
+      className={cn(
+        "inline-flex items-center gap-1 rounded-lg border px-2.5 py-1.5 text-xs font-semibold",
+        out ? "border-zinc-200 bg-zinc-50 text-zinc-400" : "border-zinc-200 text-zinc-600"
+      )}
+    >
+      {out && <Lock size={11} />}
+      {label} · {q.remaining}/{q.limit}
+    </span>
+  );
+}
 
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-zinc-700">AI provider</label>
-        <div className="grid grid-cols-2 gap-2">
-          {PROVIDER_IDS.map((p) => (
-            <button
-              key={p}
-              type="button"
-              onClick={() => setProvider(p)}
-              className={cn(
-                "flex items-center justify-center gap-2 rounded-xl border px-3 py-2.5 text-sm font-semibold",
-                provider === p
-                  ? "border-primary bg-brand-soft text-brand-strong"
-                  : "border-zinc-200 text-zinc-600"
-              )}
-            >
-              <span>{AI_PROVIDERS[p].emoji}</span>
-              {AI_PROVIDERS[p].label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-zinc-700">API key</label>
-        <input
-          type="password"
-          autoComplete="off"
-          value={settings.keys[provider] ?? ""}
-          onChange={(e) => onChange({ ...settings, keys: { ...settings.keys, [provider]: e.target.value } })}
-          placeholder={meta.keyPlaceholder}
-          className="focus:border-primary w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-base outline-none focus:bg-white"
-        />
-        <p className="mt-1.5 text-xs text-zinc-400">
-          Get a key at <span className="text-brand-strong font-medium">{meta.keyUrl}</span>.
-        </p>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-zinc-700">Model</label>
-        <select
-          value={settings.model}
-          onChange={(e) => onChange({ ...settings, model: e.target.value })}
-          className="focus:border-primary w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-base outline-none focus:bg-white"
-        >
-          {meta.models.map((m) => (
-            <option key={m.id} value={m.id}>
-              {m.label}
-            </option>
-          ))}
-        </select>
-      </div>
-
-      <div>
-        <label className="mb-2 block text-sm font-semibold text-zinc-700">
-          Unsplash key <span className="font-normal text-zinc-400">(optional — cover photos)</span>
-        </label>
-        <input
-          type="password"
-          autoComplete="off"
-          value={settings.unsplashKey}
-          onChange={(e) => onChange({ ...settings, unsplashKey: e.target.value })}
-          placeholder="Unsplash Access Key"
-          className="focus:border-primary w-full rounded-xl border border-zinc-200 bg-zinc-50 px-3.5 py-3 text-base outline-none focus:bg-white"
-        />
-      </div>
-
-      <button
-        type="button"
-        onClick={onDone}
-        className="bg-primary text-primary-foreground w-full rounded-xl py-3 text-sm font-bold"
-      >
-        Done
-      </button>
+function LockedNote({ q, what }: { q?: QuotaStatus; what: string }) {
+  return (
+    <div className="flex items-start gap-2.5 rounded-xl border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-800">
+      <Lock size={16} className="mt-0.5 shrink-0" />
+      <span>
+        You&apos;ve used all {q?.limit ?? 5} free AI {what} for today. You&apos;ll get{" "}
+        {q?.limit ?? 5} more tomorrow. You can still add recipes manually — it&apos;s unlimited.
+      </span>
     </div>
   );
 }
@@ -650,8 +572,4 @@ function Dot({ color, label }: { color: string; label: string }) {
       {label}
     </span>
   );
-}
-
-function cap(s: string) {
-  return s.charAt(0).toUpperCase() + s.slice(1);
 }

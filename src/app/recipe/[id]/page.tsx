@@ -76,7 +76,7 @@ export default async function RecipePage({
             ) : undefined
           }
         />
-        <div className="mt-8 flex items-center gap-3 border-t border-zinc-200 pt-6">
+        <div className="mt-8 flex flex-col gap-3 border-t border-zinc-200 pt-6 sm:flex-row sm:items-center [&>*]:w-full sm:[&>*]:w-auto">
           <EditRecipeButton recipe={recipe} folders={folders} />
           <DeleteRecipeButton recipeId={recipe.id} />
         </div>

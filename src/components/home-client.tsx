@@ -37,10 +37,13 @@ export function HomeClient({ recipes, folders, isDemo = false, linkPrefix }: Hom
       {/* Header */}
       <header className="sticky top-0 z-30 border-b border-zinc-100 bg-white/90 backdrop-blur">
         <div className="mx-auto flex h-14 max-w-7xl items-center gap-3 px-4 sm:px-6">
-          {/* Mobile: greeting */}
-          <div className="flex items-center gap-2 md:hidden">
-            <span className="font-display text-base font-bold text-zinc-900">
-              {isDemo ? "Welcome 👋" : `Hello, ${firstName} 👋`}
+          {/* Mobile: logo mark + greeting */}
+          <div className="flex min-w-0 items-center gap-2 md:hidden">
+            <span className="bg-brand-soft text-primary grid h-8 w-8 shrink-0 place-items-center rounded-xl">
+              <ChefHat size={17} />
+            </span>
+            <span className="font-display truncate text-base font-bold text-zinc-900">
+              {isDemo ? "Welcome 👋" : `Hi, ${firstName} 👋`}
             </span>
           </div>
 

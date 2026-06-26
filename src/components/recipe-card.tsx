@@ -66,7 +66,7 @@ export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" 
         href={`${linkPrefix}/${recipe.id}`}
         className={cn(
           "block overflow-hidden rounded-2xl bg-white shadow-sm transition-all duration-200",
-          "hover:-translate-y-1 hover:shadow-xl",
+          "hover:-translate-y-1 hover:shadow-xl hover:ring-zinc-200",
           selected ? "ring-primary ring-2" : "ring-1 ring-zinc-100"
         )}
       >
@@ -76,15 +76,18 @@ export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" 
             src={recipe.imageUrl}
             alt={recipe.name}
             fill
-            className="object-cover transition-transform duration-300 group-hover:scale-[1.03]"
+            className="object-cover transition-transform duration-500 group-hover:scale-[1.05]"
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
           />
+
+          {/* Bottom scrim keeps the time pill legible on bright photos */}
+          <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-black/35 to-transparent" />
 
           {/* Category chip */}
           {cat && (
             <span
               className={cn(
-                "absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white capitalize backdrop-blur-sm",
+                "absolute top-2.5 left-2.5 rounded-full px-2.5 py-1 text-[11px] font-semibold text-white capitalize shadow-sm backdrop-blur-sm",
                 DISH_TYPE_COLORS[cat] ?? "bg-zinc-600/90"
               )}
             >
@@ -93,12 +96,12 @@ export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" 
           )}
 
           {/* Heart */}
-          <span className="absolute top-2 right-2 grid h-8 w-8 place-items-center rounded-full bg-white/85 text-zinc-500 backdrop-blur-sm transition-colors group-hover:text-rose-500">
+          <span className="absolute top-2 right-2 grid h-8 w-8 place-items-center rounded-full bg-white/85 text-zinc-500 shadow-sm backdrop-blur-sm transition-colors group-hover:text-rose-500">
             <Heart size={15} />
           </span>
 
           {/* Total-time pill */}
-          <span className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-zinc-800 backdrop-blur-sm">
+          <span className="absolute bottom-2.5 left-2.5 flex items-center gap-1 rounded-full bg-white/90 px-2.5 py-1 text-[11px] font-bold text-zinc-800 shadow-sm backdrop-blur-sm">
             <Clock size={11} />
             {totalTime(recipe)} min
           </span>
@@ -106,13 +109,13 @@ export function RecipeCard({ recipe, selected, onSelect, linkPrefix = "/recipe" 
 
         {/* Body */}
         <div className="p-3.5">
-          <h3 className="font-display line-clamp-2 min-h-[2.6em] text-[15px] leading-tight font-bold text-zinc-900">
+          <h3 className="font-display line-clamp-2 min-h-[2.5em] text-[15px] leading-tight font-bold tracking-tight text-zinc-900">
             {recipe.name}
           </h3>
           <div className="mt-2 flex items-center justify-between gap-2">
             <span className="truncate text-xs font-medium text-zinc-500">{subBits.join(" · ")}</span>
-            <span className="flex shrink-0 items-center gap-1 text-xs font-bold text-amber-500">
-              <Star size={13} className="fill-amber-400 text-amber-400" />
+            <span className="flex shrink-0 items-center gap-1 rounded-full bg-amber-50 px-1.5 py-0.5 text-xs font-bold text-amber-600">
+              <Star size={12} className="fill-amber-400 text-amber-400" />
               {recipe.rating.toFixed(1)}
             </span>
           </div>

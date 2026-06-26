@@ -119,13 +119,29 @@ src/
 > See `src/lib/recipe-utils.ts` (`getSteps` falls back from `instructions`,
 > `isSparse` drives the "Complete with AI" nudge).
 
-### AI import (BYOK)
+### AI create (owner-funded, daily quota)
 
-`Import with AI` (in the upload dialog) → `RecipeImportDialog` → `importRecipe`
-server action. Users bring their own provider key (Anthropic / OpenAI / Google /
-Mistral) stored only in `localStorage` (`src/lib/ai/settings.ts`); the key is
-forwarded to the chosen provider per-request and never persisted server-side.
-Optional `UNSPLASH` key enables stock cover images. No new required env vars.
+`Create with AI` (in the upload dialog) → `RecipeImportPanel` → the `suggestRecipeIdeas`
+/ `importRecipe` / `generateRecipe` server actions in `src/server/actions/import.ts`.
+
+AI runs on the **site owner's** Anthropic key (`ANTHROPIC_API_KEY`), fixed to
+Anthropic (model via `AI_MODEL`, default `claude-sonnet-4-6`). Users no longer
+bring their own key — the old BYOK `localStorage` flow is gone.
+
+Each signed-in user gets **two independent daily allowances** (`AI_DAILY_LIMIT`,
+default 5 each), enforced server-side in `src/lib/ai/quota.ts`:
+
+- `ideas` — `suggestRecipeIdeas` ("Get 3 ideas").
+- `generate` — `importRecipe` (link/text import & "Complete with AI") **and**
+  `generateRecipe` (generate from a picked idea).
+
+Manual recipe creation is unlimited. Accounts in `AI_OWNER_EMAILS` (default
+`antonio.jera10@gmail.com,ivanajerkovic52@gmail.com`) are unlimited on both.
+All AI recipes use **metric / European units** (g, kg, ml, l, °C — never US units).
+Counters reset at UTC midnight.
+Storage uses Upstash Redis when configured, else an in-memory dev fallback.
+Quota is asserted before the AI call and only consumed on success (a failed call
+doesn't burn a credit). Optional `UNSPLASH_ACCESS_KEY` enables stock cover images.
 
 ### Folder
 
@@ -209,6 +225,13 @@ NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
 # Uploadthing
 UPLOADTHING_SECRET=
 UPLOADTHING_APP_ID=
+
+# AI (owner-funded recipe ideas & generation)
+ANTHROPIC_API_KEY=
+AI_MODEL=claude-sonnet-4-6           # optional
+AI_OWNER_EMAILS=antonio.jera10@gmail.com  # unlimited accounts (comma-separated)
+AI_DAILY_LIMIT=3                     # optional — per user/day, per kind
+UNSPLASH_ACCESS_KEY=                 # optional — stock cover photos
 
 # Sentry
 SENTRY_DSN=

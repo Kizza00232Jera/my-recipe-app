@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { FolderInput } from "lucide-react";
+import { FolderInput, UtensilsCrossed } from "lucide-react";
 import { toast } from "sonner";
 import { RecipeCard } from "@/components/recipe-card";
 import { Button } from "@/components/ui/button";
@@ -67,13 +67,15 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, m
     <div className="min-w-0 flex-1">
       {/* Multi-select action bar — hidden in demo mode */}
       {!isDemo && selected.size > 0 && (
-        <div className="sticky top-0 z-20 mb-4 flex items-center gap-3 rounded-xl border border-zinc-200 bg-white px-4 py-3 shadow-sm">
-          <span className="text-sm font-medium text-zinc-700">{selected.size} selected</span>
-          <div className="ml-auto flex items-center gap-2">
+        <div className="sticky top-2 z-20 mb-4 flex flex-col gap-2.5 rounded-2xl border border-zinc-200 bg-white/95 px-4 py-3 shadow-md backdrop-blur sm:flex-row sm:items-center sm:gap-3">
+          <span className="text-primary text-sm font-bold">
+            {selected.size} selected
+          </span>
+          <div className="flex items-center gap-2 sm:ml-auto">
             <select
               value={targetFolderId}
               onChange={(e) => setTargetFolderId(e.target.value)}
-              className="focus:ring-primary rounded-lg border border-zinc-200 bg-white px-3 py-1.5 text-sm focus:ring-2 focus:outline-none"
+              className="focus:ring-primary min-w-0 flex-1 rounded-lg border border-zinc-200 bg-white px-3 py-2 text-sm focus:ring-2 focus:outline-none sm:flex-none"
             >
               <option value="">Add to folder…</option>
               {folders.map((f) => (
@@ -85,14 +87,14 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, m
             <Button
               size="sm"
               variant="outline"
-              className="gap-1.5"
+              className="shrink-0 gap-1.5"
               disabled={!targetFolderId || isMoving}
               onClick={handleAdd}
             >
               <FolderInput size={14} />
               {isMoving ? "Adding…" : "Add"}
             </Button>
-            <Button size="sm" variant="ghost" onClick={clearSelected} disabled={isMoving}>
+            <Button size="sm" variant="ghost" className="shrink-0" onClick={clearSelected} disabled={isMoving}>
               Cancel
             </Button>
           </div>
@@ -101,9 +103,16 @@ export function RecipeGrid({ recipes, folders, activeFolderId, activeDishType, m
 
       {/* Empty state */}
       {filtered.length === 0 && (
-        <div className="flex flex-col items-center justify-center py-24 text-zinc-400">
-          <p className="text-lg font-medium">No recipes yet</p>
-          <p className="mt-1 text-sm">Add your first recipe to get started</p>
+        <div className="flex flex-col items-center justify-center rounded-3xl border border-dashed border-zinc-200 bg-white/60 px-6 py-20 text-center">
+          <span className="bg-brand-soft text-primary mb-4 grid h-16 w-16 place-items-center rounded-2xl">
+            <UtensilsCrossed size={28} />
+          </span>
+          <p className="font-display text-lg font-bold text-zinc-700">Nothing here yet</p>
+          <p className="mt-1 max-w-xs text-sm text-zinc-500">
+            {isDemo
+              ? "No recipes match these filters — try clearing them."
+              : "Add your first recipe — or let AI create one for you in seconds."}
+          </p>
         </div>
       )}
 

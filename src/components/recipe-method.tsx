@@ -50,7 +50,9 @@ export function RecipeMethod({ ingredients, steps, baseServings }: Props) {
             onClick={() => setTab(t)}
             className={cn(
               "flex-1 rounded-xl py-2.5 text-sm font-bold capitalize transition-colors",
-              tab === t ? "bg-primary text-primary-foreground" : "bg-zinc-100 text-zinc-600"
+              tab === t
+                ? "bg-primary text-primary-foreground shadow-sm shadow-green-600/20"
+                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200"
             )}
           >
             {t}
@@ -149,7 +151,7 @@ export function RecipeMethod({ ingredients, steps, baseServings }: Props) {
                   <img
                     src={step.imageUrl}
                     alt={`Step ${i + 1}`}
-                    className="mt-3 max-h-56 w-full rounded-xl object-cover"
+                    className="mt-3 max-h-44 w-full rounded-xl object-cover sm:max-h-56"
                   />
                 )}
               </div>

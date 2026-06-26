@@ -1,22 +1,37 @@
 "use server";
 
 import * as Sentry from "@sentry/nextjs";
-import { auth } from "@clerk/nextjs/server";
 import { fetchPageContent } from "@/lib/ai/extract";
 import { callLLM, extractJson, generatedImageUrl, searchUnsplash } from "@/lib/ai/providers";
 import { modelLabel, type ProviderId } from "@/lib/ai/models";
+import { assertQuota, getAllQuotas, recordUsage } from "@/lib/ai/quota";
 import { DISH_TYPES, DIFFICULTIES } from "@/lib/db/schema";
 import type { DishType, Difficulty } from "@/lib/db/schema";
 import type { Field, IdeasResult, ImportResult, ImportedRecipe, Provenance } from "@/lib/ai/types";
 
+// AI runs on the SITE OWNER'S key, not the user's. Provider is fixed to Anthropic;
+// the model is overridable via env. Usage is capped per user — see lib/ai/quota.ts.
+const PROVIDER: ProviderId = "anthropic";
+
+function serverModel(): string {
+  return process.env.AI_MODEL || "claude-sonnet-4-6";
+}
+
+function serverKey(): string {
+  const key = process.env.ANTHROPIC_API_KEY;
+  if (!key)
+    throw new Error("AI isn't set up yet — the site owner needs to add an Anthropic API key.");
+  return key;
+}
+
+/** Current AI allowances for the signed-in user (for rendering the counters). */
+export async function getAiQuotas() {
+  return getAllQuotas();
+}
+
 export type ImportInput = {
   mode: "link" | "text";
   content: string;
-  provider: ProviderId;
-  apiKey: string;
-  model: string;
-  unsplashKey?: string;
-  imageMode?: "stock" | "generate";
 };
 
 const SYSTEM = `You are a meticulous recipe parser. You convert a webpage or pasted text into a single structured recipe.
@@ -41,6 +56,7 @@ RULES:
 - "source" means the value is stated in the SOURCE. "ai" means YOU inferred or researched it.
 - Fill EVERY field. If a fact is missing from the SOURCE, research a sensible value for THIS dish and mark it "source":"ai". For an AI value, add a short "note" explaining it (e.g. "typical bake temp for lava cake").
 - Times are integers in MINUTES.
+- ALL measurements MUST be METRIC / European: weights in g or kg, volumes in ml or l (or tsp/tbsp for small amounts), temperatures in °C. NEVER use cups, ounces (oz), pounds (lb), Fahrenheit (°F) or stick. If the SOURCE uses US units, CONVERT them to metric (e.g. 1 cup flour → 120 g, 1 cup liquid → 240 ml, 350°F → 175°C, 1 lb → 450 g). Put any temperature inside the step text in °C.
 - "dishTypes" values MUST be from: ${DISH_TYPES.join(", ")}.
 - "difficulty" MUST be exactly easy, medium, or hard (or null).
 - Split the method into clear, individual numbered steps.
@@ -49,9 +65,7 @@ RULES:
 
 export async function importRecipe(input: ImportInput): Promise<ImportResult> {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Please sign in to import recipes.");
-    if (!input.apiKey) throw new Error("Add your API key in settings first.");
+    const user = await assertQuota("generate");
 
     let sourceLabel = "pasted text";
     let sourceBlock = input.content.trim();
@@ -68,23 +82,26 @@ export async function importRecipe(input: ImportInput): Promise<ImportResult> {
 
     if (!sourceBlock) throw new Error("There was nothing to import.");
 
+    const model = serverModel();
     const raw = await callLLM({
-      provider: input.provider,
-      apiKey: input.apiKey,
-      model: input.model,
+      provider: PROVIDER,
+      apiKey: serverKey(),
+      model,
       system: SYSTEM,
       user: `SOURCE:\n${sourceBlock}`,
     });
 
     const parsed = extractJson<RawRecipe>(raw);
     const recipe = normalize(parsed);
-    const image = await resolveCover(recipe, sourceImage, input);
+    const image = await resolveCover(recipe, sourceImage);
+    const quota = await recordUsage(user, "generate");
 
     return {
       recipe,
       image,
       sourceLabel,
-      modelLabel: modelLabel(input.provider, input.model),
+      modelLabel: modelLabel(PROVIDER, model),
+      quota,
     };
   } catch (err) {
     Sentry.captureException(err);
@@ -98,9 +115,6 @@ export type IdeasInput = {
   query: string;
   mealType?: string;
   simple?: boolean;
-  provider: ProviderId;
-  apiKey: string;
-  model: string;
 };
 
 const IDEAS_SYSTEM = `You suggest recipe ideas. Given a short request, return EXACTLY 3 distinct dish ideas that fit it.
@@ -114,10 +128,8 @@ Return ONLY JSON (no prose): {"ideas":[{"title": string, "blurb": string}]}.
 
 export async function suggestRecipeIdeas(input: IdeasInput): Promise<IdeasResult> {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Please sign in.");
-    if (!input.apiKey) throw new Error("Add your API key in settings first.");
     if (!input.query.trim()) throw new Error("Tell me what you feel like cooking.");
+    const user = await assertQuota("ideas");
 
     const constraints = [
       input.mealType ? `Meal type: ${input.mealType}.` : "",
@@ -127,9 +139,9 @@ export async function suggestRecipeIdeas(input: IdeasInput): Promise<IdeasResult
       .join(" ");
 
     const raw = await callLLM({
-      provider: input.provider,
-      apiKey: input.apiKey,
-      model: input.model,
+      provider: PROVIDER,
+      apiKey: serverKey(),
+      model: serverModel(),
       system: IDEAS_SYSTEM,
       user: `REQUEST: ${input.query.trim()}${constraints ? `\n${constraints}` : ""}`,
     });
@@ -140,7 +152,8 @@ export async function suggestRecipeIdeas(input: IdeasInput): Promise<IdeasResult
       .slice(0, 3)
       .map((i) => ({ title: String(i.title).trim(), blurb: String(i.blurb ?? "").trim() }));
     if (!ideas.length) throw new Error("No ideas came back — try rephrasing.");
-    return { ideas };
+    const quota = await recordUsage(user, "ideas");
+    return { ideas, quota };
   } catch (err) {
     Sentry.captureException(err);
     throw err instanceof Error ? err : new Error("Couldn't get ideas.");
@@ -152,11 +165,6 @@ export async function suggestRecipeIdeas(input: IdeasInput): Promise<IdeasResult
 export type GenerateInput = {
   title: string;
   query?: string;
-  provider: ProviderId;
-  apiKey: string;
-  model: string;
-  unsplashKey?: string;
-  imageMode?: "stock" | "generate";
 };
 
 const GENERATE_SYSTEM = `You invent ONE complete, realistic, well-balanced recipe for the given dish title.
@@ -181,32 +189,34 @@ RULES:
 - This is an ORIGINAL recipe you create, so EVERY field is "source":"ai".
 - Honour any extra request (key ingredients, cuisine, complexity). If a simple recipe was asked for, keep it simple.
 - Times are integers in MINUTES. "dishTypes" MUST be from: ${DISH_TYPES.join(", ")}. "difficulty" MUST be easy, medium, or hard.
+- ALL measurements MUST be METRIC / European: weights in g or kg, volumes in ml or l (or tsp/tbsp for small amounts), temperatures in °C. NEVER use cups, ounces (oz), pounds (lb), Fahrenheit (°F) or stick. Put any temperature inside the step text in °C.
 - Split the method into clear, individual numbered steps. Keep the description to one or two appetising sentences.`;
 
 export async function generateRecipe(input: GenerateInput): Promise<ImportResult> {
   try {
-    const { userId } = await auth();
-    if (!userId) throw new Error("Please sign in.");
-    if (!input.apiKey) throw new Error("Add your API key in settings first.");
     if (!input.title.trim()) throw new Error("Pick an idea first.");
+    const user = await assertQuota("generate");
 
+    const model = serverModel();
     const raw = await callLLM({
-      provider: input.provider,
-      apiKey: input.apiKey,
-      model: input.model,
+      provider: PROVIDER,
+      apiKey: serverKey(),
+      model,
       system: GENERATE_SYSTEM,
       user: `DISH TITLE: ${input.title.trim()}${input.query?.trim() ? `\nORIGINAL REQUEST: ${input.query.trim()}` : ""}`,
     });
 
     const recipe = normalize(extractJson<RawRecipe>(raw));
     if (!recipe.name.value) recipe.name = { value: input.title.trim(), source: "ai" };
-    const image = await resolveCover(recipe, null, input);
+    const image = await resolveCover(recipe, null);
+    const quota = await recordUsage(user, "generate");
 
     return {
       recipe,
       image,
       sourceLabel: "AI-generated",
-      modelLabel: modelLabel(input.provider, input.model),
+      modelLabel: modelLabel(PROVIDER, model),
+      quota,
     };
   } catch (err) {
     Sentry.captureException(err);
@@ -217,21 +227,19 @@ export async function generateRecipe(input: GenerateInput): Promise<ImportResult
 // ── shared cover-image resolution ──────────────────────────────────────────
 // Tiered so a recipe ALWAYS gets a usable cover:
 //   1. the source page's own photo (best)
-//   2. an Unsplash stock photo (user's key, or a shared UNSPLASH_ACCESS_KEY)
+//   2. an Unsplash stock photo (owner's UNSPLASH_ACCESS_KEY, if set)
 //   3. a keyless AI-generated photo (always works) — the user can replace it
 async function resolveCover(
   recipe: ImportedRecipe,
-  sourceImage: string | null,
-  opts: { unsplashKey?: string; imageMode?: "stock" | "generate" }
+  sourceImage: string | null
 ): Promise<ImportResult["image"]> {
   if (sourceImage) return { url: sourceImage, source: "source" };
   const query =
     [recipe.name.value, recipe.cuisine.value].filter(Boolean).join(" ").trim() ||
     recipe.name.value ||
     "food";
-  const unsplashKey = opts.unsplashKey || process.env.UNSPLASH_ACCESS_KEY || "";
-  const stockFirst = opts.imageMode !== "generate" && !!unsplashKey;
-  const stock = stockFirst ? await searchUnsplash(query, unsplashKey) : null;
+  const unsplashKey = process.env.UNSPLASH_ACCESS_KEY || "";
+  const stock = unsplashKey ? await searchUnsplash(query, unsplashKey) : null;
   return stock
     ? { url: stock, source: "ai", query }
     : { url: generatedImageUrl(query), source: "ai", query };
