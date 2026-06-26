@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { ChevronLeft, Lightbulb, Loader2, Lock, Sparkles } from "lucide-react";
+import { ChevronLeft, Lightbulb, Loader2, Lock, RefreshCw, Sparkles } from "lucide-react";
 import { UploadButton } from "@/lib/uploadthing-client";
 import {
   generateRecipe,
@@ -61,6 +61,7 @@ export function RecipeImportPanel({
   const [mealType, setMealType] = useState<DishType | "">("");
   const [simple, setSimple] = useState(false);
   const [ideas, setIdeas] = useState<RecipeIdea[]>([]);
+  const [seenTitles, setSeenTitles] = useState<string[]>([]); // accumulated, to reroll fresh ideas
   const [ideasLoading, setIdeasLoading] = useState(false);
   const [genTitle, setGenTitle] = useState<string | null>(null);
 
@@ -75,21 +76,27 @@ export function RecipeImportPanel({
   const ideasLocked = locked(quotas?.ideas);
   const genLocked = locked(quotas?.generate);
 
-  async function getIdeas() {
+  // reroll=false → a fresh batch (clears history); reroll=true → 3 NEW ideas
+  // that avoid everything shown so far for this request.
+  async function getIdeas(reroll = false) {
     if (ideasLocked) return;
     if (!ideaQuery.trim()) {
       toast.error("Tell me what you feel like cooking.");
       return;
     }
     setIdeasLoading(true);
-    setIdeas([]);
+    if (!reroll) setIdeas([]);
     try {
       const res = await suggestRecipeIdeas({
         query: ideaQuery.trim(),
         mealType: mealType ? MEAL_LABEL[mealType] : undefined,
         simple,
+        exclude: reroll ? seenTitles : [],
       });
       setIdeas(res.ideas);
+      setSeenTitles((prev) =>
+        [...(reroll ? prev : []), ...res.ideas.map((i) => i.title)].slice(-18)
+      );
       setQuotas((q) => (q ? { ...q, ideas: res.quota } : q));
     } catch (err) {
       toast.error(err instanceof Error ? err.message : "Couldn't get ideas.");
@@ -245,7 +252,7 @@ export function RecipeImportPanel({
               ) : (
                 <button
                   type="button"
-                  onClick={getIdeas}
+                  onClick={() => getIdeas()}
                   disabled={ideasLoading}
                   className="bg-primary text-primary-foreground inline-flex w-full items-center justify-center gap-2 rounded-xl px-5 py-3.5 text-sm font-bold disabled:opacity-60"
                 >
@@ -291,6 +298,29 @@ export function RecipeImportPanel({
                       )}
                     </button>
                   ))}
+
+                  {/* Reroll — fetch 3 genuinely different ideas (uses one idea credit) */}
+                  {ideasLocked ? (
+                    <LockedNote q={quotas?.ideas} what="recipe ideas" />
+                  ) : (
+                    <button
+                      type="button"
+                      onClick={() => getIdeas(true)}
+                      disabled={ideasLoading || !!genTitle}
+                      className="hover:border-primary hover:text-primary mt-1 inline-flex w-full items-center justify-center gap-2 rounded-xl border border-dashed border-zinc-300 px-5 py-3 text-sm font-bold text-zinc-600 transition-colors disabled:opacity-60"
+                    >
+                      {ideasLoading ? (
+                        <>
+                          <Loader2 size={16} className="animate-spin" /> Finding different ideas…
+                        </>
+                      ) : (
+                        <>
+                          <RefreshCw size={15} /> Show 3 different ideas
+                        </>
+                      )}
+                    </button>
+                  )}
+
                   {genLocked && <LockedNote q={quotas?.generate} what="recipe generations" />}
                 </div>
               )}

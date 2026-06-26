@@ -115,6 +115,7 @@ export type IdeasInput = {
   query: string;
   mealType?: string;
   simple?: boolean;
+  exclude?: string[]; // titles already shown — return genuinely different dishes
 };
 
 const IDEAS_SYSTEM = `You suggest recipe ideas. Given a short request, return EXACTLY 3 distinct dish ideas that fit it.
@@ -138,12 +139,20 @@ export async function suggestRecipeIdeas(input: IdeasInput): Promise<IdeasResult
       .filter(Boolean)
       .join(" ");
 
+    const exclude = (input.exclude ?? [])
+      .map((t) => t.trim())
+      .filter(Boolean)
+      .slice(-18);
+    const avoidBlock = exclude.length
+      ? `\nDo NOT suggest these already-shown ideas, or anything close to them — return 3 GENUINELY DIFFERENT dishes (different main ingredient, cuisine or technique), while still matching the request: ${exclude.join("; ")}.`
+      : "";
+
     const raw = await callLLM({
       provider: PROVIDER,
       apiKey: serverKey(),
       model: serverModel(),
       system: IDEAS_SYSTEM,
-      user: `REQUEST: ${input.query.trim()}${constraints ? `\n${constraints}` : ""}`,
+      user: `REQUEST: ${input.query.trim()}${constraints ? `\n${constraints}` : ""}${avoidBlock}`,
     });
 
     const parsed = extractJson<{ ideas?: { title?: string; blurb?: string }[] }>(raw);
