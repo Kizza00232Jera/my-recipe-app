@@ -339,6 +339,12 @@ vercel
 
 ---
 
+## License
+
+[MIT](LICENSE) © Antonio Jerković
+
+---
+
 <p align="center">
   Built with <strong>Next.js</strong>, <strong>Tailwind CSS</strong>, <strong>Drizzle ORM</strong>, and <strong>Clerk</strong> — deployed on <strong>Vercel</strong>.
 </p>
